@@ -340,15 +340,6 @@ function Hero() {
             <span className="text-sm font-medium">LinkedIn</span>
           </a>
           <a
-            href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/details/featured/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
-          >
-            <i className="fas fa-globe"></i>
-            <span className="text-sm font-medium">Featured</span>
-          </a>
-          <a
             href="tel:+919073549642"
             className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
           >
@@ -1168,13 +1159,6 @@ function FloatingActionButton() {
       href: 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/',
       external: true,
       color: 'bg-blue-600 hover:bg-blue-700',
-    },
-    {
-      icon: 'fas fa-globe',
-      label: 'Featured',
-      href: 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/details/featured/',
-      external: true,
-      color: 'bg-cyan-600 hover:bg-cyan-700',
     },
     {
       icon: 'fas fa-phone',
