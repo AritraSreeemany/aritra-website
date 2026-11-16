@@ -1,6 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { cvContent } from './cvData';
+
+// ============ PROJECT FILTER CONTEXT ============
+// Lets the hero's skill tags filter the Projects section by clicking one.
+const ProjectFilterContext = createContext<{
+  filter: string | null;
+  setFilter: (f: string | null) => void;
+}>({ filter: null, setFilter: () => {} });
 
 // ============ CV DOWNLOAD FUNCTION ============
 export type CVVariant =
@@ -251,6 +258,7 @@ function Hero() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const { setFilter } = useContext(ProjectFilterContext);
 
   return (
     <section id="home" ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950">
@@ -329,13 +337,18 @@ function Hero() {
           className="flex flex-wrap justify-center gap-3 mt-6 mb-10"
         >
           {['Operations', 'Strategy', 'Analytics', 'Marketing', 'Project Management'].map((tag, i) => (
-            <span
+            <button
               key={tag}
-              className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm hover:border-orange-500/40 hover:text-orange-400 transition-colors cursor-default"
+              onClick={() => {
+                setFilter(tag);
+                setTimeout(() => scrollToSection('projects'), 50);
+              }}
+              className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm hover:border-orange-500/40 hover:text-orange-400 hover:bg-orange-500/5 hover:-translate-y-0.5 transition-all cursor-pointer"
               style={{ transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)` }}
+              title={`See ${tag.toLowerCase()} projects`}
             >
               {tag}
-            </span>
+            </button>
           ))}
         </motion.div>
 
@@ -591,10 +604,11 @@ function Experience() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ y: -4, rotate: i % 2 === 0 ? -0.5 : 0.5 }}
               className="relative md:pl-20"
             >
               <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-4 hidden md:block ${exp.highlight ? 'bg-orange-500 border-gray-900' : 'bg-gray-600 border-gray-900'}`}></div>
-              <div className={`border rounded-2xl p-8 transition-all ${exp.highlight ? 'bg-gradient-to-r from-orange-500/5 to-transparent border-orange-500/20' : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600'}`}>
+              <div className={`border rounded-2xl p-8 transition-colors ${exp.highlight ? 'bg-gradient-to-r from-orange-500/5 to-transparent border-orange-500/20' : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600'}`}>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div>
                     <h3 className="text-2xl font-bold text-white">{exp.company}</h3>
@@ -800,7 +814,8 @@ function Achievements() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="group relative bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 hover:border-gray-600 transition-all hover:-translate-y-1"
+            whileHover={{ y: -6, rotate: i % 2 === 0 ? -0.6 : 0.6 }}
+            className="group relative bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 hover:border-gray-600 transition-colors"
           >
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
               <i className={`fas ${item.icon} text-white`}></i>
@@ -817,10 +832,12 @@ function Achievements() {
 
 // ============ PROJECTS ============
 function Projects() {
+  const { filter, setFilter } = useContext(ProjectFilterContext);
   const projects = [
     {
       title: 'Hydraulic Ladle Tilter Design',
       type: 'Primetals Technologies · Internship',
+      category: 'Project Management',
       description: 'Designed complete Hydraulic Ladle Tilter assembly from scratch using SolidWorks. Performed design validation ensuring structural integrity and operational feasibility.',
       tags: ['SolidWorks', 'Design Validation', 'Mechanical Design'],
       icon: 'fa-gears',
@@ -828,6 +845,7 @@ function Projects() {
     {
       title: 'Respiratory Droplet Dispersion Study',
       type: 'Jadavpur University · Research Intern',
+      category: 'Analytics',
       description: 'Researched influence of ambient conditions on droplet transport and evaporation in a closed indoor environment. Analysed effects of temperature, humidity, airflow, & viral load.',
       tags: ['Research', 'Data Analysis', 'Fluid Dynamics'],
       icon: 'fa-microscope',
@@ -835,6 +853,7 @@ function Projects() {
     {
       title: 'Cascade Refrigeration System',
       type: 'Academic Project · Research',
+      category: 'Strategy',
       description: 'Developed a thermodynamic model for a Cascade Refrigeration System with low GWP refrigerants. Analysed system performance utilizing thermodynamic & thermo-economic parameters.',
       tags: ['Thermodynamics', 'Sustainability', 'Modelling'],
       icon: 'fa-temperature-low',
@@ -842,24 +861,54 @@ function Projects() {
     {
       title: 'RMHS Material Tracking System',
       type: 'Jindal Stainless · Live Project',
+      category: 'Operations',
       description: 'Created a robust material-tracking system spanning spec mapping, code generation & inventory checks for the ₹1,400+ Cr BOF project. Streamlined procurement workflows.',
       tags: ['SAP', 'Process Design', 'Inventory'],
       icon: 'fa-database',
     },
   ];
 
+  const filtered = filter ? projects.filter((p) => p.category === filter) : projects;
+  const showEmptyNote = filter && filtered.length === 0;
+
   return (
     <Section id="projects" className="bg-gray-950">
       <SectionTitle eyebrow="Projects" title="Work That Matters" description="From academic research to live industrial projects — building solutions that impact." />
+
+      {filter && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-3 mb-8 -mt-6"
+        >
+          <span className="text-sm text-gray-400">Filtered by</span>
+          <span className="px-3 py-1 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-sm font-medium rounded-full">{filter}</span>
+          <button
+            onClick={() => setFilter(null)}
+            className="text-sm text-gray-500 hover:text-orange-400 transition-colors underline underline-offset-2"
+          >
+            Clear filter
+          </button>
+        </motion.div>
+      )}
+
+      {showEmptyNote && (
+        <p className="text-gray-500 text-sm mb-8 -mt-6">
+          No project tagged "{filter}" yet — here's everything else in the meantime.
+        </p>
+      )}
+
       <div className="grid md:grid-cols-2 gap-6">
-        {projects.map((project, i) => (
+        {(showEmptyNote ? projects : filtered).map((project, i) => (
           <motion.div
-            key={i}
+            key={project.title}
+            layout
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="group bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8 hover:border-orange-500/30 transition-all hover:-translate-y-1"
+            whileHover={{ y: -6, rotate: i % 2 === 0 ? -0.6 : 0.6, scale: 1.015 }}
+            className="group bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8 hover:border-orange-500/30 transition-colors"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
@@ -878,6 +927,54 @@ function Projects() {
         ))}
       </div>
     </Section>
+  );
+}
+
+// ============ CERTIFICATION FLIP CARD ============
+function CertFlipCard({ cert, delay }: { cert: { name: string; issuer: string; icon: string; color: string; desc: string }; delay: number }) {
+  const [flipped, setFlipped] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay }}
+      className="relative h-28 cursor-pointer"
+      style={{ perspective: '1000px' }}
+      onClick={() => setFlipped((f) => !f)}
+    >
+      <motion.div
+        className="relative w-full h-full"
+        style={{ transformStyle: 'preserve-3d' }}
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Front */}
+        <div
+          className="absolute inset-0 flex items-center gap-4 p-5 bg-gray-800/50 border border-gray-700/50 rounded-2xl hover:border-orange-500/30 transition-colors"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          <div className="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i className={`${cert.icon} ${cert.color} text-lg`}></i>
+          </div>
+          <div className="min-w-0">
+            <div className="text-white text-sm font-medium leading-snug">{cert.name}</div>
+            <div className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+              <i className="fas fa-rotate text-[10px]"></i> flip for details
+            </div>
+          </div>
+        </div>
+        {/* Back */}
+        <div
+          className="absolute inset-0 flex flex-col justify-center p-5 bg-orange-500/10 border border-orange-500/30 rounded-2xl"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <div className="text-orange-400 text-xs font-semibold uppercase tracking-wider mb-1">{cert.issuer}</div>
+          <p className="text-gray-300 text-xs leading-relaxed">{cert.desc}</p>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -906,12 +1003,12 @@ function SkillsAndInterests() {
   ];
 
   const certifications = [
-    { name: 'BCG — Introduction to Strategy Consulting', icon: 'fa-chess-knight', color: 'text-orange-400' },
-    { name: 'McKinsey Forward Program', icon: 'fa-compass', color: 'text-amber-400' },
-    { name: 'Siemens — Project Management', icon: 'fa-diagram-project', color: 'text-orange-300' },
-    { name: 'TATA — ESG', icon: 'fa-leaf', color: 'text-green-400' },
-    { name: 'Python: From Basics to Data Structure', icon: 'fab fa-python', color: 'text-blue-400' },
-    { name: 'Automotive Engineering — Supercharging', icon: 'fa-car', color: 'text-red-400' },
+    { name: 'BCG — Introduction to Strategy Consulting', issuer: 'Boston Consulting Group', icon: 'fa-chess-knight', color: 'text-orange-400', desc: 'Core strategy-consulting frameworks: market sizing, profitability diagnosis, and structured problem-solving.' },
+    { name: 'McKinsey Forward Program', issuer: 'McKinsey & Company', icon: 'fa-compass', color: 'text-amber-400', desc: 'Professional and leadership-skills program covering problem-solving, communication, and adaptability.' },
+    { name: 'Siemens — Project Management', issuer: 'Siemens', icon: 'fa-diagram-project', color: 'text-orange-300', desc: 'Project-management fundamentals applied to industrial and engineering execution.' },
+    { name: 'TATA — ESG', issuer: 'Tata Group', icon: 'fa-leaf', color: 'text-green-400', desc: 'Environmental, Social & Governance fundamentals and corporate sustainability reporting.' },
+    { name: 'Python: From Basics to Data Structure', issuer: 'Self-paced course', icon: 'fab fa-python', color: 'text-blue-400', desc: 'Python fundamentals through core data structures — lists, dicts, stacks, and queues.' },
+    { name: 'Automotive Engineering — Supercharging', issuer: 'Self-paced course', icon: 'fa-car', color: 'text-red-400', desc: 'Supercharging systems in automotive engines — principles, types, and performance trade-offs.' },
   ];
 
   const interests = [
@@ -950,21 +1047,10 @@ function SkillsAndInterests() {
           <h3 className="text-white font-bold text-xl mt-10 mb-6">Certifications</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {certifications.map((cert, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="flex items-center gap-4 p-5 bg-gray-800/50 border border-gray-700/50 rounded-2xl"
-              >
-                <div className="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center">
-                  <i className={`${cert.icon} ${cert.color} text-lg`}></i>
-                </div>
-                <div className="text-white text-sm font-medium">{cert.name}</div>
-              </motion.div>
+              <CertFlipCard key={i} cert={cert} delay={i * 0.1} />
             ))}
           </div>
+          <p className="text-gray-600 text-xs mt-3">Tap a certification to flip it over.</p>
         </div>
 
         {/* Languages & Interests */}
@@ -1271,20 +1357,23 @@ function ScrollProgress() {
 // ============ MAIN APP ============
 export default function App() {
   useHashScrollOnLoad();
+  const [filter, setFilter] = useState<string | null>(null);
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <ScrollProgress />
-      <Navbar />
-      <Hero />
-      <About />
-      <Experience />
-      <Education />
-      <Achievements />
-      <Projects />
-      <SkillsAndInterests />
-      <Contact />
-      <Footer />
-      <FloatingActionButton />
-    </div>
+    <ProjectFilterContext.Provider value={{ filter, setFilter }}>
+      <div className="min-h-screen bg-gray-950 text-white">
+        <ScrollProgress />
+        <Navbar />
+        <Hero />
+        <About />
+        <Experience />
+        <Education />
+        <Achievements />
+        <Projects />
+        <SkillsAndInterests />
+        <Contact />
+        <Footer />
+        <FloatingActionButton />
+      </div>
+    </ProjectFilterContext.Provider>
   );
 }
