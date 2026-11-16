@@ -3,15 +3,24 @@ import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'fra
 import { cvContent } from './cvData';
 
 // ============ CV DOWNLOAD FUNCTION ============
-export type CVVariant = 'general' | 'operations' | 'marketing';
+export type CVVariant =
+  | 'operations'
+  | 'marketing'
+  | 'luxury'
+  | 'productManagement'
+  | 'strategyConsulting'
+  | 'finance';
 
 const CV_FILES: Record<CVVariant, { file: string; name: string }> = {
-  general: { file: '/cv-general.pdf', name: 'Aritra_Sreemany_CV.pdf' },
   operations: { file: '/cv-operations.pdf', name: 'Aritra_Sreemany_CV_Operations.pdf' },
   marketing: { file: '/cv-marketing.pdf', name: 'Aritra_Sreemany_CV_Marketing.pdf' },
+  luxury: { file: '/cv-luxury-marketing.pdf', name: 'Aritra_Sreemany_CV_Luxury_Marketing.pdf' },
+  productManagement: { file: '/cv-product-management.pdf', name: 'Aritra_Sreemany_CV_Product_Management.pdf' },
+  strategyConsulting: { file: '/cv-strategy-consulting.pdf', name: 'Aritra_Sreemany_CV_Strategy_Consulting.pdf' },
+  finance: { file: '/cv-finance.pdf', name: 'Aritra_Sreemany_CV_Finance.pdf' },
 };
 
-const downloadCV = async (variant: CVVariant = 'general') => {
+const downloadCV = async (variant: CVVariant = 'operations') => {
   const { file, name } = CV_FILES[variant];
   try {
     const response = await fetch(file);
@@ -82,9 +91,12 @@ function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { varian
   }, []);
 
   const options: { key: CVVariant; label: string }[] = [
-    { key: 'general', label: 'General' },
     { key: 'operations', label: 'Operations' },
     { key: 'marketing', label: 'Marketing' },
+    { key: 'luxury', label: 'Luxury Marketing' },
+    { key: 'productManagement', label: 'Product Management' },
+    { key: 'strategyConsulting', label: 'Strategy Consulting' },
+    { key: 'finance', label: 'Finance' },
   ];
 
   const baseBtn = variant === 'block'
@@ -94,7 +106,7 @@ function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { varian
   return (
     <div ref={ref} className="relative inline-block">
       <div className={variant === 'block' ? 'flex gap-2' : 'flex items-center gap-1'}>
-        <button onClick={() => downloadCV('general')} className={baseBtn}>
+        <button onClick={() => downloadCV('operations')} className={baseBtn}>
           <i className="fas fa-download"></i>
           <span className={variant === 'block' ? 'ml-2' : 'text-sm font-medium'}>{label}</span>
         </button>
@@ -114,7 +126,7 @@ function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { varian
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="absolute right-0 mt-2 w-44 bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-20"
+            className="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-20"
           >
             {options.map((opt) => (
               <button
