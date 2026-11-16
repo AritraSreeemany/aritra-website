@@ -100,8 +100,8 @@ function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { varian
   ];
 
   const baseBtn = variant === 'block'
-    ? 'w-full px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-emerald-500/20 transition-all hover:-translate-y-0.5'
-    : 'flex items-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all';
+    ? 'w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/20 transition-all hover:-translate-y-0.5'
+    : 'flex items-center gap-2 px-5 py-3 bg-orange-500/10 border border-orange-500/30 rounded-full text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/50 transition-all';
 
   return (
     <div ref={ref} className="relative inline-block">
@@ -114,8 +114,8 @@ function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { varian
           onClick={() => setOpen((o) => !o)}
           aria-label="Choose CV variant"
           className={variant === 'block'
-            ? 'px-4 rounded-xl bg-gray-800 border border-gray-700 text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-all'
-            : 'px-3 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all'}
+            ? 'px-4 rounded-xl bg-gray-800 border border-gray-700 text-gray-300 hover:border-orange-500/50 hover:text-orange-400 transition-all'
+            : 'px-3 py-3 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:bg-orange-500/20 transition-all'}
         >
           <i className={`fas fa-chevron-down text-xs transition-transform ${open ? 'rotate-180' : ''}`}></i>
         </button>
@@ -132,7 +132,7 @@ function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { varian
               <button
                 key={opt.key}
                 onClick={() => { downloadCV(opt.key); setOpen(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-orange-500/10 hover:text-orange-400 transition-colors"
               >
                 {opt.label} CV
               </button>
@@ -177,7 +177,7 @@ function Navbar() {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-gray-950/80 backdrop-blur-xl border-b border-emerald-500/10' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-gray-950/80 backdrop-blur-xl border-b border-orange-500/10' : 'bg-transparent'}`}>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <motion.a
           href="#home"
@@ -186,7 +186,7 @@ function Navbar() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-emerald-400">A</span>ritra<span className="text-emerald-400">.</span>
+          <span className="text-orange-400">A</span>ritra<span className="text-orange-400">.</span>
         </motion.a>
 
         <div className="hidden md:flex items-center gap-1">
@@ -196,7 +196,7 @@ function Navbar() {
               href={`#${link.id}`}
               onClick={(e) => { e.preventDefault(); scrollToSection(link.id); }}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === link.id
-                ? 'text-emerald-400 bg-emerald-400/10'
+                ? 'text-orange-400 bg-orange-400/10'
                 : 'text-gray-400 hover:text-white'
                 }`}
               initial={{ opacity: 0, y: -10 }}
@@ -216,7 +216,7 @@ function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="md:hidden bg-gray-950/95 backdrop-blur-xl border-t border-emerald-500/10 px-6 py-6 flex flex-col gap-3"
+            className="md:hidden bg-gray-950/95 backdrop-blur-xl border-t border-orange-500/10 px-6 py-6 flex flex-col gap-3"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -233,7 +233,7 @@ function Navbar() {
                   // computes the target position against the wrong (taller) layout.
                   setTimeout(() => scrollToSection(link.id), 320);
                 }}
-                className="text-gray-300 hover:text-emerald-400 py-2 font-medium transition-colors"
+                className="text-gray-300 hover:text-orange-400 py-2 font-medium transition-colors"
               >
                 {link.label}
               </a>
@@ -256,9 +256,9 @@ function Hero() {
     <section id="home" ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950">
       {/* Animated background */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-teal-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-300/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
       {/* Grid */}
@@ -266,34 +266,60 @@ function Hero() {
 
       <motion.div style={{ y, opacity }} className="relative z-10 max-w-5xl mx-auto px-6 pt-32 md:pt-24 text-center">
         <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7 }}
+          className="relative w-32 h-32 mx-auto mb-7"
+        >
+          <div className="absolute -top-2 -left-2 w-36 h-36 bg-orange-500/90" style={{ borderRadius: '42% 58% 55% 45% / 48% 44% 56% 52%' }}></div>
+          <img
+            src="/aritra-photo.jpg"
+            alt="Aritra Sreemany"
+            className="relative w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-2xl -rotate-3"
+          />
+        </motion.div>
+
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-sm font-medium mb-8"
+          className="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-500 text-gray-950 text-xs font-bold uppercase tracking-wider rounded-full mb-8 -rotate-2 shadow-[3px_3px_0_rgba(0,0,0,0.3)]"
         >
-          <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-          MiM '28 @ emlyon business school
+          MiM '28 · emlyon business school
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.1] mb-6"
+          className="text-5xl md:text-7xl lg:text-8xl font-bold text-white uppercase leading-[1.0] mb-2 tracking-tight"
         >
-          Aritra{' '}
-          <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+          Aritra<br />
+          <span className="font-accent italic font-medium normal-case text-orange-400 -rotate-1 inline-block text-[0.82em]">
             Sreemany
           </span>
         </motion.h1>
+
+        <svg className="w-16 h-3 mx-auto mb-5 opacity-80" viewBox="0 0 70 14">
+          <path d="M2 8 Q 10 2, 18 8 T 34 8 T 50 8 T 66 8" stroke="#e8683c" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        </svg>
 
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-4 leading-relaxed"
+          className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-2 leading-relaxed"
         >
           Engineer turned business generalist, built for operations, strategy, analytics, and marketing. Three years turning complex projects into measurable results — now bringing that same rigor to management internships across Europe.
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.25 }}
+          className="font-accent italic text-orange-400/90 text-sm md:text-base mb-6"
+        >
+          three years of turning chaos into charts, now doing it in French.
         </motion.p>
 
         <motion.div
@@ -302,8 +328,12 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="flex flex-wrap justify-center gap-3 mt-6 mb-10"
         >
-          {['Operations', 'Strategy', 'Analytics', 'Marketing', 'Project Management'].map((tag) => (
-            <span key={tag} className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm">
+          {['Operations', 'Strategy', 'Analytics', 'Marketing', 'Project Management'].map((tag, i) => (
+            <span
+              key={tag}
+              className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm hover:border-orange-500/40 hover:text-orange-400 transition-colors cursor-default"
+              style={{ transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)` }}
+            >
               {tag}
             </span>
           ))}
@@ -315,10 +345,10 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <a href="#experience" onClick={(e) => { e.preventDefault(); scrollToSection('experience'); }} className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold hover:shadow-xl hover:shadow-emerald-500/20 transition-all hover:-translate-y-0.5">
+          <a href="#experience" onClick={(e) => { e.preventDefault(); scrollToSection('experience'); }} className="px-8 py-4 bg-orange-500 text-gray-950 rounded-full font-bold border-2 border-gray-950 shadow-[4px_4px_0_rgba(232,104,60,0.35)] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_rgba(232,104,60,0.4)] transition-all">
             View Experience
           </a>
-          <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }} className="px-8 py-4 border border-gray-700 text-gray-300 rounded-full font-semibold hover:border-emerald-500/50 hover:text-emerald-400 transition-all">
+          <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }} className="px-8 py-4 border-2 border-gray-700 text-gray-300 rounded-full font-bold hover:border-orange-500/50 hover:text-orange-400 transition-all">
             Get in Touch
           </a>
         </motion.div>
@@ -334,21 +364,21 @@ function Hero() {
             href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-orange-500/50 hover:text-orange-400 hover:bg-orange-500/5 transition-all"
           >
             <i className="fab fa-linkedin-in"></i>
             <span className="text-sm font-medium">LinkedIn</span>
           </a>
           <a
             href="tel:+919073549642"
-            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-orange-500/50 hover:text-orange-400 hover:bg-orange-500/5 transition-all"
           >
             <i className="fas fa-phone"></i>
             <span className="text-sm font-medium">Call</span>
           </a>
           <a
             href="mailto:aritra.sreemany@edu.em-lyon.com"
-            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-orange-500/50 hover:text-orange-400 hover:bg-orange-500/5 transition-all"
           >
             <i className="fas fa-envelope"></i>
             <span className="text-sm font-medium">Email</span>
@@ -370,7 +400,7 @@ function Hero() {
             { number: '3', label: 'Languages (Native)' },
           ].map((stat, i) => (
             <div key={i} className="text-center p-4 rounded-2xl bg-gray-900/50 border border-gray-800/50">
-              <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">{stat.number}</div>
+              <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">{stat.number}</div>
               <div className="text-gray-500 text-xs mt-1 uppercase tracking-wider">{stat.label}</div>
             </div>
           ))}
@@ -389,7 +419,7 @@ function Hero() {
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <i className="fas fa-chevron-down text-emerald-400/70 text-sm"></i>
+          <i className="fas fa-chevron-down text-orange-400/70 text-sm"></i>
         </motion.div>
       </motion.div>
     </section>
@@ -418,7 +448,7 @@ function Section({ id, children, className = '' }: { id: string; children: React
 function SectionTitle({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) {
   return (
     <div className="mb-16">
-      <span className="text-emerald-400 font-semibold text-sm uppercase tracking-wider">{eyebrow}</span>
+      <span className="text-orange-400 font-semibold text-sm uppercase tracking-wider">{eyebrow}</span>
       <h2 className="text-4xl md:text-5xl font-bold text-white mt-3">{title}</h2>
       {description && <p className="text-gray-400 text-lg mt-4 max-w-2xl">{description}</p>}
     </div>
@@ -433,19 +463,19 @@ function About() {
       <div className="grid lg:grid-cols-5 gap-12">
         <div className="lg:col-span-3 space-y-6">
           <p className="text-gray-300 text-lg leading-relaxed">
-            Mechanical engineer from <span className="text-emerald-400 font-medium">IIEST Shibpur</span> (B.Tech, 8.93 CGPA), heading to <span className="text-emerald-400 font-medium">Emlyon Business School (France)</span> for my Master in Management as part of a dual degree program with <span className="text-emerald-400 font-medium">MDI Gurgaon</span>.
+            Mechanical engineer from <span className="text-orange-400 font-medium">IIEST Shibpur</span> (B.Tech, 8.93 CGPA), heading to <span className="text-orange-400 font-medium">Emlyon Business School (France)</span> for my Master in Management as part of a dual degree program with <span className="text-orange-400 font-medium">MDI Gurgaon</span>.
           </p>
           <p className="text-gray-300 text-lg leading-relaxed">
-            Before this, I spent close to three years at <span className="text-emerald-400 font-medium">Jindal Stainless Limited</span>, working on planning, coordination, and overall site execution for large-scale industrial projects. Mostly involved untangling operational bottlenecks, working across teams, and pushing things from paper to ground reality.
+            Before this, I spent close to three years at <span className="text-orange-400 font-medium">Jindal Stainless Limited</span>, working on planning, coordination, and overall site execution for large-scale industrial projects. Mostly involved untangling operational bottlenecks, working across teams, and pushing things from paper to ground reality.
           </p>
           <p className="text-gray-300 text-lg leading-relaxed">
-            I'm genuinely interested in <span className="text-emerald-400 font-medium">operations, marketing, analytics, and strategy</span> — and the systems that keep businesses running. Always open to connecting with people and conversations around business, tech, and anything worth learning about.
+            I'm genuinely interested in <span className="text-orange-400 font-medium">operations, marketing, analytics, and strategy</span> — and the systems that keep businesses running. Always open to connecting with people and conversations around business, tech, and anything worth learning about.
           </p>
         </div>
         <div className="lg:col-span-2">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 rounded-3xl p-8 space-y-6">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-3xl font-bold text-white">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-3xl font-bold text-white">
                 AS
               </div>
               <div>
@@ -462,8 +492,8 @@ function About() {
                 { icon: 'fa-language', label: 'Languages', sub: 'English · Hindi · Bengali · French' },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <i className={`fas ${item.icon} text-emerald-400 text-xs`}></i>
+                  <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i className={`fas ${item.icon} text-orange-400 text-xs`}></i>
                   </div>
                   <div>
                     <div className="text-white text-sm font-medium">{item.label}</div>
@@ -551,7 +581,7 @@ function Experience() {
 
       <div className="relative">
         {/* Timeline line */}
-        <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-emerald-500 via-teal-500 to-transparent hidden md:block"></div>
+        <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-orange-500 via-amber-500 to-transparent hidden md:block"></div>
 
         <div className="space-y-8">
           {experiences.map((exp, i) => (
@@ -563,12 +593,12 @@ function Experience() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className="relative md:pl-20"
             >
-              <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-4 hidden md:block ${exp.highlight ? 'bg-emerald-500 border-gray-900' : 'bg-gray-600 border-gray-900'}`}></div>
-              <div className={`border rounded-2xl p-8 transition-all ${exp.highlight ? 'bg-gradient-to-r from-emerald-500/5 to-transparent border-emerald-500/20' : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600'}`}>
+              <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-4 hidden md:block ${exp.highlight ? 'bg-orange-500 border-gray-900' : 'bg-gray-600 border-gray-900'}`}></div>
+              <div className={`border rounded-2xl p-8 transition-all ${exp.highlight ? 'bg-gradient-to-r from-orange-500/5 to-transparent border-orange-500/20' : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600'}`}>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div>
                     <h3 className="text-2xl font-bold text-white">{exp.company}</h3>
-                    <p className={`font-medium ${exp.highlight ? 'text-emerald-400' : 'text-gray-300'}`}>{exp.role}</p>
+                    <p className={`font-medium ${exp.highlight ? 'text-orange-400' : 'text-gray-300'}`}>{exp.role}</p>
                   </div>
                   <div className="flex items-center gap-4 text-gray-400 text-sm">
                     <span className="flex items-center gap-1.5">
@@ -584,7 +614,7 @@ function Experience() {
                 <ul className="space-y-3">
                   {exp.points.map((point, j) => (
                     <li key={j} className="flex items-start gap-3 text-gray-300 text-sm leading-relaxed">
-                      <span className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${exp.highlight ? 'bg-emerald-400' : 'bg-gray-500'}`}></span>
+                      <span className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${exp.highlight ? 'bg-orange-400' : 'bg-gray-500'}`}></span>
                       {point}
                     </li>
                   ))}
@@ -609,12 +639,12 @@ function Experience() {
               className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-6"
             >
               <h4 className="text-white font-bold text-lg">{mem.org}</h4>
-              <p className="text-emerald-400 text-sm font-medium">{mem.role}</p>
+              <p className="text-orange-400 text-sm font-medium">{mem.role}</p>
               <p className="text-gray-500 text-xs mt-1">{mem.period}</p>
               <ul className="mt-4 space-y-2">
                 {mem.points.map((point, j) => (
                   <li key={j} className="flex items-start gap-2 text-gray-400 text-sm">
-                    <span className="w-1 h-1 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="w-1 h-1 bg-orange-400 rounded-full mt-2 flex-shrink-0"></span>
                     {point}
                   </li>
                 ))}
@@ -681,28 +711,28 @@ function Education() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
             className={`relative p-6 rounded-2xl border transition-all hover:-translate-y-0.5 ${edu.highlight
-              ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border-emerald-500/30'
+              ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/30'
               : 'bg-gray-900/50 border-gray-800/50 hover:border-gray-700'
               }`}
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.highlight ? 'bg-emerald-500/20' : 'bg-gray-800'
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.highlight ? 'bg-orange-500/20' : 'bg-gray-800'
                   }`}>
-                  <i className={`fas ${edu.icon} ${edu.highlight ? 'text-emerald-400' : 'text-gray-400'}`}></i>
+                  <i className={`fas ${edu.icon} ${edu.highlight ? 'text-orange-400' : 'text-gray-400'}`}></i>
                 </div>
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <h3 className="text-white font-bold text-lg">{edu.degree}</h3>
                     {edu.badge && (
-                      <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-full">{edu.badge}</span>
+                      <span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs font-medium rounded-full">{edu.badge}</span>
                     )}
                   </div>
                   <p className="text-gray-400 text-sm mt-1">{edu.institute}</p>
                 </div>
               </div>
               <div className="md:text-right">
-                <div className={`font-medium text-sm ${edu.highlight ? 'text-emerald-400' : 'text-gray-300'}`}>{edu.score}</div>
+                <div className={`font-medium text-sm ${edu.highlight ? 'text-orange-400' : 'text-gray-300'}`}>{edu.score}</div>
               </div>
             </div>
           </motion.div>
@@ -720,7 +750,7 @@ function Achievements() {
       description: 'Achieved Global Rank 9th and National Rank 3rd in ASME HPVC 2020 (E-FEST). Designed a Human Powered Vehicle from scratch as part of Team RAGNAR.',
       year: '2020',
       icon: 'fa-globe',
-      color: 'from-emerald-500 to-teal-500',
+      color: 'from-orange-500 to-amber-500',
     },
     {
       title: 'L&T TECHgium — National Finalist',
@@ -734,7 +764,7 @@ function Achievements() {
       description: "Co-authored paper titled 'Thermo-Economic Analysis of Cascade Refrigeration System' published in ISHRAE Journal (2023) & presented at INCOM 2024.",
       year: '2023',
       icon: 'fa-file-lines',
-      color: 'from-blue-500 to-cyan-500',
+      color: 'from-blue-500 to-orange-300',
     },
     {
       title: 'Springer Nature Publication',
@@ -755,7 +785,7 @@ function Achievements() {
       description: 'Single-handedly revived a Raw Material Handling System package delayed by over a year, propelling it ahead of other cross-functional teams.',
       year: '2025',
       icon: 'fa-rotate',
-      color: 'from-cyan-500 to-blue-500',
+      color: 'from-orange-300 to-blue-500',
     },
   ];
 
@@ -829,15 +859,15 @@ function Projects() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="group bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8 hover:border-emerald-500/30 transition-all hover:-translate-y-1"
+            className="group bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8 hover:border-orange-500/30 transition-all hover:-translate-y-1"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                <i className={`fas ${project.icon} text-emerald-400 text-lg`}></i>
+              <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
+                <i className={`fas ${project.icon} text-orange-400 text-lg`}></i>
               </div>
               <span className="text-xs text-gray-500 bg-gray-800 px-3 py-1 rounded-full">{project.type}</span>
             </div>
-            <h3 className="text-white font-bold text-xl mb-3 group-hover:text-emerald-400 transition-colors">{project.title}</h3>
+            <h3 className="text-white font-bold text-xl mb-3 group-hover:text-orange-400 transition-colors">{project.title}</h3>
             <p className="text-gray-400 text-sm leading-relaxed mb-5">{project.description}</p>
             <div className="flex flex-wrap gap-2">
               {project.tags.map((tag, j) => (
@@ -876,9 +906,9 @@ function SkillsAndInterests() {
   ];
 
   const certifications = [
-    { name: 'BCG — Introduction to Strategy Consulting', icon: 'fa-chess-knight', color: 'text-emerald-400' },
-    { name: 'McKinsey Forward Program', icon: 'fa-compass', color: 'text-teal-400' },
-    { name: 'Siemens — Project Management', icon: 'fa-diagram-project', color: 'text-cyan-400' },
+    { name: 'BCG — Introduction to Strategy Consulting', icon: 'fa-chess-knight', color: 'text-orange-400' },
+    { name: 'McKinsey Forward Program', icon: 'fa-compass', color: 'text-amber-400' },
+    { name: 'Siemens — Project Management', icon: 'fa-diagram-project', color: 'text-orange-300' },
     { name: 'TATA — ESG', icon: 'fa-leaf', color: 'text-green-400' },
     { name: 'Python: From Basics to Data Structure', icon: 'fab fa-python', color: 'text-blue-400' },
     { name: 'Automotive Engineering — Supercharging', icon: 'fa-car', color: 'text-red-400' },
@@ -906,10 +936,10 @@ function SkillsAndInterests() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.03 }}
-                className="flex items-center gap-3 p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-emerald-500/30 transition-all"
+                className="flex items-center gap-3 p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-orange-500/30 transition-all"
               >
-                <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <i className={`fas ${skill.icon} text-emerald-400 text-xs`}></i>
+                <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <i className={`fas ${skill.icon} text-orange-400 text-xs`}></i>
                 </div>
                 <span className="text-gray-300 text-sm font-medium">{skill.name}</span>
               </motion.div>
@@ -971,10 +1001,10 @@ function SkillsAndInterests() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
-                  className="flex items-center gap-4 p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-emerald-500/30 transition-all"
+                  className="flex items-center gap-4 p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-orange-500/30 transition-all"
                 >
-                  <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className={`fas ${interest.icon} text-emerald-400`}></i>
+                  <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i className={`fas ${interest.icon} text-orange-400`}></i>
                   </div>
                   <div>
                     <div className="text-white font-medium text-sm">{interest.name}</div>
@@ -1018,35 +1048,35 @@ function Contact() {
         <div className="space-y-8">
           <div className="space-y-6">
             <a href="tel:+919073549642" className="flex items-center gap-4 group">
-              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
-                <i className="fas fa-phone text-emerald-400"></i>
+              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-all">
+                <i className="fas fa-phone text-orange-400"></i>
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">Phone</div>
-                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">🇮🇳 +91 9073549642</div>
+                <div className="text-white font-medium group-hover:text-orange-400 transition-colors">🇮🇳 +91 9073549642</div>
               </div>
             </a>
             <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="flex items-center gap-4 group">
-              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
-                <i className="fas fa-envelope text-emerald-400"></i>
+              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-all">
+                <i className="fas fa-envelope text-orange-400"></i>
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">Email</div>
-                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">aritra.sreemany@edu.em-lyon.com</div>
+                <div className="text-white font-medium group-hover:text-orange-400 transition-colors">aritra.sreemany@edu.em-lyon.com</div>
               </div>
             </a>
             <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
-              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
-                <i className="fab fa-linkedin-in text-emerald-400"></i>
+              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-all">
+                <i className="fab fa-linkedin-in text-orange-400"></i>
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">LinkedIn</div>
-                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">aritra-sreemany</div>
+                <div className="text-white font-medium group-hover:text-orange-400 transition-colors">aritra-sreemany</div>
               </div>
             </a>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                <i className="fas fa-location-dot text-emerald-400"></i>
+              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center">
+                <i className="fas fa-location-dot text-orange-400"></i>
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">Location</div>
@@ -1077,7 +1107,7 @@ function Contact() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 flex items-center gap-3 text-sm"
+                className="mb-6 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl text-orange-400 flex items-center gap-3 text-sm"
               >
                 <i className="fas fa-check-circle"></i>
                 <span>Opening your email app to send this — I'll get back to you soon.</span>
@@ -1091,7 +1121,7 @@ function Contact() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all"
                 placeholder="Your name"
                 required
               />
@@ -1102,7 +1132,7 @@ function Contact() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all"
                 placeholder="your@email.com"
                 required
               />
@@ -1113,14 +1143,14 @@ function Contact() {
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 rows={5}
-                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all resize-none"
+                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all resize-none"
                 placeholder="What's on your mind?"
                 required
               ></textarea>
             </div>
             <button
               type="submit"
-              className="w-full px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-emerald-500/20 transition-all hover:-translate-y-0.5"
+              className="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/20 transition-all hover:-translate-y-0.5"
             >
               Send Message
             </button>
@@ -1140,10 +1170,10 @@ function Footer() {
           © 2026 Aritra Sreemany. Crafted with passion.
         </div>
         <div className="flex items-center gap-6">
-          <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-emerald-400 transition-colors">
+          <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-orange-400 transition-colors">
             <i className="fab fa-linkedin-in"></i>
           </a>
-          <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="text-gray-500 hover:text-emerald-400 transition-colors">
+          <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="text-gray-500 hover:text-orange-400 transition-colors">
             <i className="fas fa-envelope"></i>
           </a>
           <span className="text-gray-600 text-sm">MiM '28 · PGDM-IB '28</span>
@@ -1170,7 +1200,7 @@ function FloatingActionButton() {
       label: 'Call',
       href: 'tel:+919073549642',
       external: false,
-      color: 'bg-emerald-600 hover:bg-emerald-700',
+      color: 'bg-orange-600 hover:bg-orange-700',
     },
     {
       icon: 'fas fa-envelope',
@@ -1222,7 +1252,7 @@ function FloatingActionButton() {
 
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${isOpen ? 'bg-gray-700 rotate-45' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}
+        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${isOpen ? 'bg-gray-700 rotate-45' : 'bg-gradient-to-r from-orange-500 to-amber-500'}`}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -1232,11 +1262,18 @@ function FloatingActionButton() {
   );
 }
 
+// ============ SCROLL PROGRESS BAR ============
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  return <motion.div id="scroll-progress" style={{ scaleX: scrollYProgress }} />;
+}
+
 // ============ MAIN APP ============
 export default function App() {
   useHashScrollOnLoad();
   return (
     <div className="min-h-screen bg-gray-950 text-white">
+      <ScrollProgress />
       <Navbar />
       <Hero />
       <About />
