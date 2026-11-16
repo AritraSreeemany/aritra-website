@@ -346,7 +346,7 @@ function Hero() {
             className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
           >
             <i className="fas fa-globe"></i>
-            <span className="text-sm font-medium">Website</span>
+            <span className="text-sm font-medium">Featured</span>
           </a>
           <a
             href="tel:+919073549642"
@@ -356,7 +356,7 @@ function Hero() {
             <span className="text-sm font-medium">Call</span>
           </a>
           <a
-            href="mailto:asreemany2000@gmail.com"
+            href="mailto:aritra.sreemany@edu.em-lyon.com"
             className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
           >
             <i className="fas fa-envelope"></i>
@@ -461,8 +461,8 @@ function About() {
               {[
                 { icon: 'fa-graduation-cap', label: 'B.Tech Mechanical', sub: 'IIEST Shibpur — 8.93 CGPA' },
                 { icon: 'fa-building-columns', label: 'MiM @ Emlyon (France)', sub: 'Dual degree with MDI Gurgaon' },
-                { icon: 'fa-briefcase', label: 'Associate Manager', sub: 'Jindal Stainless — since 2024' },
-                { icon: 'fa-location-dot', label: 'Based in', sub: 'Kolkata → Odisha → Gurgaon → France' },
+                { icon: 'fa-briefcase', label: 'Associate Manager, Operations', sub: 'Jindal Stainless — since 2023' },
+                { icon: 'fa-location-dot', label: 'Based in', sub: 'Kolkata → Odisha → Gurgaon → Lyon, France' },
                 { icon: 'fa-language', label: 'Languages', sub: 'English · Hindi · Bengali · French' },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -488,31 +488,19 @@ function Experience() {
   const experiences = [
     {
       company: 'Jindal Stainless',
-      role: 'Associate Manager',
+      role: 'Associate Manager, Operations',
       location: 'Jajpur, Odisha',
-      period: 'July 2024 — Present',
-      duration: '2+ years',
+      period: 'July 2023 — Present',
+      duration: '3+ years',
       points: [
         'Coordinated with 15+ vendors and contractors for procurement, supply, and timely equipment delivery on a ₹1,400+ crore BOF expansion project',
-        'Supervised a team of 15 technicians and junior engineers during equipment installation, erection, and commissioning activities',
+        'Led an 18-member team of technicians and junior engineers for equipment installation, erection, and commissioning activities',
         'Planned and monitored project schedules while coordinating with engineering, procurement, and site teams to ensure timely execution of critical project milestones',
-        'Managed monthly billing and procurement worth ₹0.5–0.8 crore, ensuring accuracy and audit compliance',
+        'Owned end-to-end monthly billing and procurement worth ₹1–2 crore, ensuring accuracy and audit compliance',
         'Revived a Raw Material Handling System (RMHS) package delayed by over a year through close coordination with EPC contractors and cross-functional teams',
+        'Built a material-tracking system spanning specification mapping, code generation, and inventory checks, streamlining procurement workflows',
       ],
       highlight: true,
-    },
-    {
-      company: 'Jindal Stainless',
-      role: 'Graduate Engineering Trainee',
-      location: 'Jajpur, Odisha',
-      period: 'July 2023 — July 2024',
-      duration: '1 year 1 month',
-      points: [
-        'Worked on planning, coordination, and site execution for large-scale industrial projects',
-        'Gained hands-on experience in procurement, vendor management, and project billing',
-        'Built foundational skills in stakeholder management and cross-functional coordination',
-      ],
-      highlight: false,
     },
     {
       company: 'Primetals Technologies',
@@ -649,7 +637,7 @@ function Education() {
     {
       degree: 'Master in Management (MiM)',
       institute: 'emlyon business school, France',
-      score: "Jan 2027 — Dec 2027",
+      score: "4 Jan 2027 — 20 Dec 2027",
       icon: 'fa-earth-europe',
       highlight: true,
       badge: 'Primary',
@@ -1009,6 +997,15 @@ function Contact() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // No backend is wired up, so the form can't actually transmit anything
+    // on its own. Open the visitor's email client with the details
+    // pre-filled instead, so the message genuinely reaches me rather than
+    // silently vanishing after a fake "sent" confirmation.
+    const subject = encodeURIComponent(`Portfolio contact from ${formData.name}`);
+    const body = encodeURIComponent(
+      `${formData.message}\n\n— ${formData.name} (${formData.email})`
+    );
+    window.location.href = `mailto:aritra.sreemany@edu.em-lyon.com?subject=${subject}&body=${body}`;
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
     setFormData({ name: '', email: '', message: '' });
@@ -1029,13 +1026,13 @@ function Contact() {
                 <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">+91 9073549642</div>
               </div>
             </a>
-            <a href="mailto:asreemany2000@gmail.com" className="flex items-center gap-4 group">
+            <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="flex items-center gap-4 group">
               <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
                 <i className="fas fa-envelope text-emerald-400"></i>
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">Email</div>
-                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">asreemany2000@gmail.com</div>
+                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">aritra.sreemany@edu.em-lyon.com</div>
               </div>
             </a>
             <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
@@ -1053,7 +1050,7 @@ function Contact() {
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">Location</div>
-                <div className="text-white font-medium">Gurgaon, India → France (soon)</div>
+                <div className="text-white font-medium">Lyon, France</div>
               </div>
             </div>
           </div>
@@ -1083,7 +1080,7 @@ function Contact() {
                 className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 flex items-center gap-3 text-sm"
               >
                 <i className="fas fa-check-circle"></i>
-                <span>Message sent! I'll get back to you soon.</span>
+                <span>Opening your email app to send this — I'll get back to you soon.</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1146,7 +1143,7 @@ function Footer() {
           <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-emerald-400 transition-colors">
             <i className="fab fa-linkedin-in"></i>
           </a>
-          <a href="mailto:asreemany2000@gmail.com" className="text-gray-500 hover:text-emerald-400 transition-colors">
+          <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="text-gray-500 hover:text-emerald-400 transition-colors">
             <i className="fas fa-envelope"></i>
           </a>
           <span className="text-gray-600 text-sm">MiM '28 · PGDM-IB '28</span>
@@ -1170,7 +1167,7 @@ function FloatingActionButton() {
     },
     {
       icon: 'fas fa-globe',
-      label: 'Website',
+      label: 'Featured',
       href: 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/details/featured/',
       external: true,
       color: 'bg-cyan-600 hover:bg-cyan-700',
@@ -1185,7 +1182,7 @@ function FloatingActionButton() {
     {
       icon: 'fas fa-envelope',
       label: 'Email',
-      href: 'mailto:asreemany2000@gmail.com',
+      href: 'mailto:aritra.sreemany@edu.em-lyon.com',
       external: false,
       color: 'bg-rose-600 hover:bg-rose-700',
     },
