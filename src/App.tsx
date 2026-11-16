@@ -880,6 +880,10 @@ function SkillsAndInterests() {
   ];
 
   const certifications = [
+    { name: 'BCG — Introduction to Strategy Consulting', icon: 'fa-chess-knight', color: 'text-emerald-400' },
+    { name: 'McKinsey Forward Program', icon: 'fa-compass', color: 'text-teal-400' },
+    { name: 'Siemens — Project Management', icon: 'fa-diagram-project', color: 'text-cyan-400' },
+    { name: 'TATA — ESG', icon: 'fa-leaf', color: 'text-green-400' },
     { name: 'Python: From Basics to Data Structure', icon: 'fab fa-python', color: 'text-blue-400' },
     { name: 'Automotive Engineering — Supercharging', icon: 'fa-car', color: 'text-red-400' },
   ];
