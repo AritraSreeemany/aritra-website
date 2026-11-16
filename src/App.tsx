@@ -264,7 +264,7 @@ function Hero() {
       {/* Grid */}
       <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(16,185,129,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.3) 1px, transparent 1px)', backgroundSize: '60px 60px' }}></div>
 
-      <motion.div style={{ y, opacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+      <motion.div style={{ y, opacity }} className="relative z-10 max-w-5xl mx-auto px-6 pt-32 md:pt-24 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -293,7 +293,7 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-4 leading-relaxed"
         >
-          Mechanical engineer turned business strategist. Untangling operational bottlenecks, leading cross-functional teams, and pushing things from paper to ground reality.
+          Engineer turned business generalist, built for operations, strategy, analytics, and marketing. Three years turning complex projects into measurable results — now bringing that same rigor to management internships across Europe.
         </motion.p>
 
         <motion.div
@@ -379,13 +379,18 @@ function Hero() {
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 1 }}
       >
-        <div className="w-6 h-10 border-2 border-gray-600 rounded-full flex justify-center pt-2">
-          <div className="w-1.5 h-3 bg-emerald-400 rounded-full"></div>
-        </div>
+        <span className="text-gray-500 text-[11px] font-medium uppercase tracking-[0.2em]">Scroll</span>
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <i className="fas fa-chevron-down text-emerald-400/70 text-sm"></i>
+        </motion.div>
       </motion.div>
     </section>
   );
