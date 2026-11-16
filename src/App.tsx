@@ -462,7 +462,7 @@ function About() {
                 { icon: 'fa-graduation-cap', label: 'B.Tech Mechanical', sub: 'IIEST Shibpur — 8.93 CGPA' },
                 { icon: 'fa-building-columns', label: 'MiM @ Emlyon (France)', sub: 'Dual degree with MDI Gurgaon' },
                 { icon: 'fa-briefcase', label: 'Associate Manager, Operations', sub: 'Jindal Stainless — since 2023' },
-                { icon: 'fa-location-dot', label: 'Based in', sub: 'Kolkata → Odisha → Gurgaon → Lyon, France' },
+                { icon: 'fa-location-dot', label: 'Based in', sub: 'Kolkata → Odisha → Gurgaon → Caluire-et-Cuire, France' },
                 { icon: 'fa-language', label: 'Languages', sub: 'English · Hindi · Bengali · French' },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -1027,7 +1027,7 @@ function Contact() {
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">Phone</div>
-                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">+91 9073549642</div>
+                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">🇮🇳 +91 9073549642</div>
               </div>
             </a>
             <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="flex items-center gap-4 group">
@@ -1054,7 +1054,7 @@ function Contact() {
               </div>
               <div>
                 <div className="text-gray-500 text-xs uppercase tracking-wider">Location</div>
-                <div className="text-white font-medium">Lyon, France</div>
+                <div className="text-white font-medium">Caluire-et-Cuire, Auvergne-Rhône-Alpes, France</div>
               </div>
             </div>
           </div>
