@@ -3,16 +3,24 @@ import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'fra
 import { cvContent } from './cvData';
 
 // ============ CV DOWNLOAD FUNCTION ============
-const downloadCV = async () => {
+export type CVVariant = 'general' | 'operations' | 'marketing';
+
+const CV_FILES: Record<CVVariant, { file: string; name: string }> = {
+  general: { file: '/cv-general.pdf', name: 'Aritra_Sreemany_CV.pdf' },
+  operations: { file: '/cv-operations.pdf', name: 'Aritra_Sreemany_CV_Operations.pdf' },
+  marketing: { file: '/cv-marketing.pdf', name: 'Aritra_Sreemany_CV_Marketing.pdf' },
+};
+
+const downloadCV = async (variant: CVVariant = 'general') => {
+  const { file, name } = CV_FILES[variant];
   try {
-    // Fetch the PDF CV file from the public folder
-    const response = await fetch('/cv.pdf');
+    const response = await fetch(file);
     if (response.ok) {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Aritra_Sreemany_CV.pdf';
+      a.download = name;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -33,6 +41,96 @@ const downloadCV = async () => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+// ============ SMOOTH ANCHOR SCROLL ============
+// Fixes two bugs: (1) native hash-jump landing in the wrong place because
+// it fires before the mobile menu's close animation settles the layout;
+// (2) deep-linking straight to /#section on first load doing nothing
+// because the target id doesn't exist in the DOM yet when the browser
+// tries to jump to it (this is a client-rendered SPA).
+const NAVBAR_OFFSET = 80;
+
+function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_OFFSET;
+  window.scrollTo({ top, behavior: 'smooth' });
+  window.history.replaceState(null, '', `#${id}`);
+}
+
+function useHashScrollOnLoad() {
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+    // Wait for the SPA to mount and lay out before jumping.
+    const t = setTimeout(() => scrollToSection(hash), 150);
+    return () => clearTimeout(t);
+  }, []);
+}
+
+// ============ CV DOWNLOAD BUTTON (with variant picker) ============
+function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { variant?: 'split' | 'block'; label?: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClickAway = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onClickAway);
+    return () => document.removeEventListener('mousedown', onClickAway);
+  }, []);
+
+  const options: { key: CVVariant; label: string }[] = [
+    { key: 'general', label: 'General' },
+    { key: 'operations', label: 'Operations' },
+    { key: 'marketing', label: 'Marketing' },
+  ];
+
+  const baseBtn = variant === 'block'
+    ? 'w-full px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-emerald-500/20 transition-all hover:-translate-y-0.5'
+    : 'flex items-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all';
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <div className={variant === 'block' ? 'flex gap-2' : 'flex items-center gap-1'}>
+        <button onClick={() => downloadCV('general')} className={baseBtn}>
+          <i className="fas fa-download"></i>
+          <span className={variant === 'block' ? 'ml-2' : 'text-sm font-medium'}>{label}</span>
+        </button>
+        <button
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Choose CV variant"
+          className={variant === 'block'
+            ? 'px-4 rounded-xl bg-gray-800 border border-gray-700 text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-all'
+            : 'px-3 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all'}
+        >
+          <i className={`fas fa-chevron-down text-xs transition-transform ${open ? 'rotate-180' : ''}`}></i>
+        </button>
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="absolute right-0 mt-2 w-44 bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-20"
+          >
+            {options.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => { downloadCV(opt.key); setOpen(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+              >
+                {opt.label} CV
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ============ NAVBAR ============
 function Navbar() {
@@ -84,6 +182,7 @@ function Navbar() {
             <motion.a
               key={link.id}
               href={`#${link.id}`}
+              onClick={(e) => { e.preventDefault(); scrollToSection(link.id); }}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === link.id
                 ? 'text-emerald-400 bg-emerald-400/10'
                 : 'text-gray-400 hover:text-white'
@@ -111,7 +210,19 @@ function Navbar() {
             exit={{ opacity: 0, height: 0 }}
           >
             {links.map((link) => (
-              <a key={link.id} href={`#${link.id}`} onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-emerald-400 py-2 font-medium transition-colors">
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMenuOpen(false);
+                  // Close the menu first and let its collapse animation finish
+                  // before scrolling — scrolling while the menu is still open
+                  // computes the target position against the wrong (taller) layout.
+                  setTimeout(() => scrollToSection(link.id), 320);
+                }}
+                className="text-gray-300 hover:text-emerald-400 py-2 font-medium transition-colors"
+              >
                 {link.label}
               </a>
             ))}
@@ -149,7 +260,7 @@ function Hero() {
           className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-sm font-medium mb-8"
         >
           <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-          MiM '28 @ Emlyon · PGDM-IB '28 @ MDI Gurgaon
+          MiM '28 @ emlyon business school
         </motion.div>
 
         <motion.h1
@@ -192,10 +303,10 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <a href="#experience" className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold hover:shadow-xl hover:shadow-emerald-500/20 transition-all hover:-translate-y-0.5">
+          <a href="#experience" onClick={(e) => { e.preventDefault(); scrollToSection('experience'); }} className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold hover:shadow-xl hover:shadow-emerald-500/20 transition-all hover:-translate-y-0.5">
             View Experience
           </a>
-          <a href="#contact" className="px-8 py-4 border border-gray-700 text-gray-300 rounded-full font-semibold hover:border-emerald-500/50 hover:text-emerald-400 transition-all">
+          <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }} className="px-8 py-4 border border-gray-700 text-gray-300 rounded-full font-semibold hover:border-emerald-500/50 hover:text-emerald-400 transition-all">
             Get in Touch
           </a>
         </motion.div>
@@ -217,7 +328,9 @@ function Hero() {
             <span className="text-sm font-medium">LinkedIn</span>
           </a>
           <a
-            href="#"
+            href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/details/featured/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
           >
             <i className="fas fa-globe"></i>
@@ -237,13 +350,7 @@ function Hero() {
             <i className="fas fa-envelope"></i>
             <span className="text-sm font-medium">Email</span>
           </a>
-          <button
-            onClick={downloadCV}
-            className="flex items-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all"
-          >
-            <i className="fas fa-download"></i>
-            <span className="text-sm font-medium">Download CV</span>
-          </button>
+          <CVDownloadButton />
         </motion.div>
 
         {/* Quick Stats */}
@@ -342,7 +449,7 @@ function About() {
               {[
                 { icon: 'fa-graduation-cap', label: 'B.Tech Mechanical', sub: 'IIEST Shibpur — 8.93 CGPA' },
                 { icon: 'fa-building-columns', label: 'MiM @ Emlyon (France)', sub: 'Dual degree with MDI Gurgaon' },
-                { icon: 'fa-briefcase', label: 'Ex-Associate Manager', sub: 'Jindal Stainless — 3 years' },
+                { icon: 'fa-briefcase', label: 'Associate Manager', sub: 'Jindal Stainless — since 2024' },
                 { icon: 'fa-location-dot', label: 'Based in', sub: 'Kolkata → Odisha → Gurgaon → France' },
                 { icon: 'fa-language', label: 'Languages', sub: 'English · Hindi · Bengali · French' },
               ].map((item, i) => (
@@ -371,8 +478,8 @@ function Experience() {
       company: 'Jindal Stainless',
       role: 'Associate Manager',
       location: 'Jajpur, Odisha',
-      period: 'July 2024 — June 2026',
-      duration: '2 years',
+      period: 'July 2024 — Present',
+      duration: '2+ years',
       points: [
         'Coordinated with 15+ vendors and contractors for procurement, supply, and timely equipment delivery on a ₹1,400+ crore BOF expansion project',
         'Supervised a team of 15 technicians and junior engineers during equipment installation, erection, and commissioning activities',
@@ -530,18 +637,18 @@ function Education() {
     {
       degree: 'Master in Management (MiM)',
       institute: 'emlyon business school, France',
-      score: "June 2026 — June 2028",
+      score: "Jan 2027 — Dec 2027",
       icon: 'fa-earth-europe',
       highlight: true,
-      badge: 'Dual Degree',
+      badge: 'Primary',
     },
     {
       degree: 'PGDM — International Business',
       institute: 'Management Development Institute (MDI), Gurgaon',
-      score: "June 2026 — 2028",
+      score: "2026 — 2028",
       icon: 'fa-building-columns',
-      highlight: true,
-      badge: 'Dual Degree',
+      highlight: false,
+      badge: 'Dual-Degree Partner',
     },
     {
       degree: 'B.Tech — Mechanical Engineering',
@@ -951,13 +1058,7 @@ function Contact() {
           </div>
 
           {/* Download CV Button */}
-          <button
-            onClick={downloadCV}
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 font-semibold hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all"
-          >
-            <i className="fas fa-file-arrow-down"></i>
-            <span>Download My CV</span>
-          </button>
+          <CVDownloadButton variant="block" label="Download My CV" />
         </div>
 
         <form onSubmit={handleSubmit} className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8">
@@ -1058,8 +1159,8 @@ function FloatingActionButton() {
     {
       icon: 'fas fa-globe',
       label: 'Website',
-      href: '#',
-      external: false,
+      href: 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/details/featured/',
+      external: true,
       color: 'bg-cyan-600 hover:bg-cyan-700',
     },
     {
@@ -1131,6 +1232,7 @@ function FloatingActionButton() {
 
 // ============ MAIN APP ============
 export default function App() {
+  useHashScrollOnLoad();
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <Navbar />

@@ -33,10 +33,10 @@ learning about.
 EDUCATION
 ----------------------------------------------------------------------
 emlyon business school, France
-    Master in Management (MiM)                  June 2026 - June 2028
+    Master in Management (MiM)                  Jan 2027 - Dec 2027
 
-Management Development Institute (MDI), Gurgaon
-    PGDM - International Business               June 2026 - 2028
+Management Development Institute (MDI), Gurgaon (dual-degree partner)
+    PGDM - International Business               2026 - 2028
 
 Indian Institute of Engineering Science and Technology (IIEST), Shibpur
     B.Tech - Mechanical Engineering             2019 - 2023
@@ -54,7 +54,7 @@ WORK EXPERIENCE
 ----------------------------------------------------------------------
 JINDAL STAINLESS LIMITED, Jajpur, Odisha (3 years)
 
-Associate Manager                               July 2024 - June 2026
+Associate Manager                               July 2024 - Present
     • Coordinated with 15+ vendors and contractors for procurement, 
       supply, and timely equipment delivery on a ₹1,400+ crore BOF 
       expansion project
