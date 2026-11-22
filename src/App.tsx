@@ -1109,22 +1109,27 @@ function SkillsAndInterests() {
 // ============ CONTACT ============
 function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // No backend is wired up, so the form can't actually transmit anything
-    // on its own. Open the visitor's email client with the details
-    // pre-filled instead, so the message genuinely reaches me rather than
-    // silently vanishing after a fake "sent" confirmation.
-    const subject = encodeURIComponent(`Portfolio contact from ${formData.name}`);
-    const body = encodeURIComponent(
-      `${formData.message}\n\n— ${formData.name} (${formData.email})`
-    );
-    window.location.href = `mailto:aritra.sreemany@edu.em-lyon.com?subject=${subject}&body=${body}`;
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-    setFormData({ name: '', email: '', message: '' });
+    setStatus('sending');
+    try {
+      const res = await fetch('https://formspree.io/f/xkjrqjyb', {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        setStatus('sent');
+        setFormData({ name: '', email: '', message: '' });
+        setTimeout(() => setStatus('idle'), 4000);
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   return (
@@ -1188,7 +1193,7 @@ function Contact() {
 
         <form onSubmit={handleSubmit} className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8">
           <AnimatePresence>
-            {submitted && (
+            {status === 'sent' && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1196,7 +1201,18 @@ function Contact() {
                 className="mb-6 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl text-orange-400 flex items-center gap-3 text-sm"
               >
                 <i className="fas fa-check-circle"></i>
-                <span>Opening your email app to send this — I'll get back to you soon.</span>
+                <span>Message sent — I'll get back to you soon.</span>
+              </motion.div>
+            )}
+            {status === 'error' && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 flex items-center gap-3 text-sm"
+              >
+                <i className="fas fa-triangle-exclamation"></i>
+                <span>Something went wrong — please email me directly at aritra.sreemany@edu.em-lyon.com.</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1236,9 +1252,10 @@ function Contact() {
             </div>
             <button
               type="submit"
-              className="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/20 transition-all hover:-translate-y-0.5"
+              disabled={status === 'sending'}
+              className="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/20 transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              Send Message
+              {status === 'sending' ? 'Sending…' : 'Send Message'}
             </button>
           </div>
         </form>
