@@ -345,7 +345,7 @@ function About() {
         <div className="relative pb-16 pr-10">
           <div className="bg-white p-3 shadow-[0_20px_60px_rgba(0,0,0,0.1)] w-[85%]">
             <div className="relative aspect-[4/5] bg-forest overflow-hidden">
-              <img src="/aritra-photo.jpg" alt="Aritra Sreemany" className="w-full h-full object-cover" />
+              <img src="/aritra-suit.jpg" alt="Aritra Sreemany in a suit" className="w-full h-full object-cover object-top" />
             </div>
           </div>
           <motion.div whileHover={{ y: -6 }} className="absolute right-0 bottom-0 w-[52%] bg-white p-3 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
@@ -618,6 +618,12 @@ function Experience() {
             <p className="text-lime font-display font-bold text-sm tracking-widest">JINDAL STAINLESS LIMITED</p>
             <p className="font-display font-bold text-3xl lg:text-4xl mt-2" style={{ color: '#fff' }}>India's largest stainless steel manufacturer</p>
             <p className="text-white/70 mt-2">Associate Manager, Operations · Jul 2023 – Jun 2026 (35 months)</p>
+            <span className="inline-flex items-center gap-2 mt-4 bg-lime/15 border border-lime/40 text-lime text-xs font-bold px-3 py-1.5 rounded-full"><i className="fas fa-circle-check"></i>Responsibilities verified by my reporting manager (AGM)</span>
+            <div className="flex flex-wrap gap-3 mt-6">
+              {[['11', 'conveyor lines'], ['3.4 km', 'of belt'], ['5,300+', 'idlers']].map(([v, l]) => (
+                <span key={l} className="bg-white/10 backdrop-blur rounded-xl px-4 py-2"><b className="font-display text-lime text-lg">{v}</b> <span className="text-white/70 text-xs">{l}</span></span>
+              ))}
+            </div>
           </div>
           {/* floating chart card like the template */}
           <motion.div whileHover={{ y: -8 }} className="absolute right-8 bottom-10 bg-white p-5 shadow-2xl w-64">
@@ -654,13 +660,15 @@ function Experience() {
 }
 
 // ============ PROJECTS (CASE STUDY) ============
-const PROJECTS = [
-  { tag: 'Operations', t: 'RMHS Material Tracking System', ic: 'fa-boxes-stacked', d: 'Systematised on-site tracking of spares and material codes with live inventory status during the BOF expansion, replacing scattered spreadsheets.', res: 'Live inventory visibility on site' },
-  { tag: 'Analytics', t: 'Package Progress Dashboards', ic: 'fa-chart-column', d: 'Excel and Power BI trackers for package progress and site materials used in leadership reviews.', res: 'Tracking errors cut by 20%+' },
-  { tag: 'Project Recovery', t: 'Turning Around A Delayed Package', ic: 'fa-rotate', d: 'Took over an RMHS package running a year late and pulled it back through tighter vendor follow-up and sequencing.', res: '9+ months recovered vs other teams' },
+type Project = { tag: string; t: string; ic: string; d: string; res: string; img?: string; stats?: [string, string][]; link?: { href: string; label: string } };
+const PROJECTS: Project[] = [
+  { tag: 'Operations', t: 'RMHS Conveyor Package & Material Tracking', ic: 'fa-boxes-stacked', d: 'Mapped specifications, generated material codes and ran live inventory checks for the entire Raw Material Handling System of the BOF expansion: belts, idlers, frames and spares across every conveyor line, from purchase order to erection.', res: 'Erection & commissioning of the full RMHS circuit for BOF-1 & 2, Ladle addition & Twin Ladle Furnace', stats: [['11', 'conveyor lines'], ['3.4 km', 'conveyor belt'], ['5,300+', 'idlers tracked']] },
+  { tag: 'Analytics', t: 'Package Progress Dashboards', ic: 'fa-chart-column', d: 'Excel and Power BI trackers for package progress and site materials, used in leadership reviews and month-end reconciliations.', res: 'Tracking errors cut by 20%+' },
+  { tag: 'Project Recovery', t: 'Turning Around A Delayed Package', ic: 'fa-rotate', d: 'Took over an RMHS package running almost a year late and pulled it back through daily EPC follow-ups, tighter sequencing and cross-functional coordination.', res: '9+ months recovered, ahead of other teams' },
+  { tag: 'Engineering', t: 'EGR-Integrated Catalysed DPF', ic: 'fa-car-side', img: '/certs/techgium-dpf-cad.jpg', d: 'L&T TECHgium 5th Edition proof of concept: raising NO2 concentration through exhaust gas recirculation to drive catalytic passive regeneration of a diesel particulate filter for BS6 engines. Built the CAD model of the DPF assembly and porous cordierite core.', res: 'National Finalist, L&T TECHgium 2022' },
+  { tag: 'Research', t: 'Cascade Refrigeration Systems', ic: 'fa-snowflake', img: '/certs/paper-ishrae.jpg', d: 'Thermo-economic analysis of a two-stage cascade refrigeration system using R41/R161, published in the ISHRAE Journal, and a thermodynamic and cost assessment with different refrigerants published as a Springer Nature chapter (INCOM 2024).', res: 'Two peer-reviewed publications', link: { href: 'https://doi.org/10.1007/978-981-97-7308-4_10', label: 'Read on Springer' } },
+  { tag: 'Engineering', t: 'Hydraulic Ladle Tilter', ic: 'fa-gears', img: '/certs/primetals-internship.jpg', d: 'Design internship at Primetals Technologies (a Mitsubishi Heavy Industries joint venture), June to July 2022: designed and validated a hydraulic ladle tilter in SolidWorks.', res: 'Internship completed with appreciable performance', link: { href: '/docs/Primetals_Internship_Certificate.pdf', label: 'Internship certificate' } },
   { tag: 'Marketing', t: 'Brokerage Marketing Simulation', ic: 'fa-bullseye', d: 'Seven-round simulation: analysed customer segments, pricing and discounts to grow retention and acquisition.', res: 'Retention & acquisition gains' },
-  { tag: 'Design', t: 'Hydraulic Ladle Tilter', ic: 'fa-gears', d: 'Design internship at Primetals Technologies: designed and validated a hydraulic ladle tilter in SolidWorks.', res: 'Validated design, 2022' },
-  { tag: 'Research', t: 'Cascade Refrigeration Systems', ic: 'fa-snowflake', d: 'Co-authored a peer-reviewed chapter published by Springer Nature and in the ISHRAE Journal.', res: 'Published research' },
 ];
 
 function Projects() {
@@ -688,6 +696,7 @@ function Projects() {
                 onMouseEnter={() => setAct(p.k)} onClick={() => setOpen(p.k)}
                 className={`group relative h-[360px] text-left overflow-hidden rounded-xl ${act === p.k ? 'bg-ink' : 'bg-forest'}`}>
                 <div className="absolute inset-0 grid-pattern"></div>
+                {p.img && <img src={p.img} alt="" loading="lazy" className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${act === p.k ? 'opacity-45 scale-105' : 'opacity-25'}`} />}
                 <i className={`fas ${p.ic} absolute right-6 top-6 text-[120px] text-white/[0.07] group-hover:text-lime/20 transition-colors`}></i>
                 <span className={`absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white text-ink flex items-center justify-center transition-all ${act === p.k ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}><i className="fas fa-arrow-right"></i></span>
                 <div className={`absolute left-5 right-5 bottom-5 p-6 rounded-lg transition-colors ${act === p.k ? 'bg-forest' : 'bg-white'}`}>
@@ -703,7 +712,13 @@ function Projects() {
         {sel && (
           <div>
             <div className="bg-forest grid-pattern p-8 pr-16"><p className="text-lime text-sm font-semibold">{sel.tag}</p><h3 className="font-display font-bold text-3xl mt-1" style={{ color: '#fff' }}>{sel.t}</h3></div>
-            <div className="p-8"><p className="leading-8">{sel.d}</p><p className="mt-5 inline-flex items-center gap-2 bg-lime px-4 py-2 font-display font-bold text-ink"><i className="fas fa-trophy"></i>{sel.res}</p></div>
+            <div className="p-8">
+              {sel.img && <img src={sel.img} alt={sel.t} className="w-full max-h-72 object-contain bg-mint rounded-xl mb-6" />}
+              <p className="leading-8">{sel.d}</p>
+              {sel.stats && <div className="grid grid-cols-3 gap-3 mt-6">{sel.stats.map(([v, l]) => <div key={l} className="bg-mint rounded-xl p-4 text-center"><p className="font-display font-extrabold text-2xl text-forest">{v}</p><p className="text-xs mt-1">{l}</p></div>)}</div>}
+              <p className="mt-6 inline-flex items-center gap-2 bg-lime px-4 py-2 rounded-full font-display font-bold text-ink text-sm"><i className="fas fa-trophy"></i>{sel.res}</p>
+              {sel.link && <a href={sel.link.href} target="_blank" rel="noopener noreferrer" className="block mt-5 text-forest font-display font-semibold underline decoration-lime decoration-2 underline-offset-4">{sel.link.label} <i className="fas fa-arrow-right text-xs"></i></a>}
+            </div>
           </div>
         )}
       </Modal>
@@ -712,15 +727,19 @@ function Projects() {
 }
 
 // ============ CREDENTIALS (TEAM CARDS) ============
-const CERTS = [
-  { t: 'Introduction to Strategy Consulting', by: 'BCG', yr: '2026', ic: 'fa-chess-knight' },
+type Cert = { t: string; by: string; yr: string; ic: string; img?: string; pdf?: string; code?: string; link?: string };
+const CERTS: Cert[] = [
+  { t: 'Introduction to Strategy Consulting', by: 'BCG · Forage job simulation', yr: '2026', ic: 'fa-chess-knight', img: '/certs/bcg-strategy.jpg', pdf: '/docs/BCG_Strategy_Consulting_Certificate.pdf', code: '6af8c9b836af9db3eb1b7009' },
+  { t: 'Project Manager Job Simulation', by: 'Siemens · Forage', yr: '2026', ic: 'fa-industry', img: '/certs/siemens-pm.jpg', pdf: '/docs/Siemens_Project_Manager_Certificate.pdf', code: '6a63eda1e22952070f093c62' },
   { t: 'Forward Program', by: 'McKinsey & Company', yr: '2026', ic: 'fa-forward' },
-  { t: 'Project Manager', by: 'Siemens', yr: '2026', ic: 'fa-industry' },
   { t: 'ESG Fundamentals', by: 'TATA', yr: '2026', ic: 'fa-leaf' },
-  { t: 'Python: Basics to Data Structures', by: 'Online certification', yr: '2021', ic: 'fa-code' },
-  { t: 'Global Management Challenge India', by: 'Top 99 of 1,344 teams', yr: '2026', ic: 'fa-trophy' },
-  { t: 'ASME HPVC 2020', by: 'Global Rank 9 · National Rank 3', yr: '2020', ic: 'fa-bicycle' },
-  { t: 'L&T TECHgium 5th Edition', by: 'National Finalist', yr: '2021', ic: 'fa-medal' },
+  { t: 'Learn Python: Basics to Data Structures', by: 'Udemy · 6.5 hours', yr: '2021', ic: 'fa-code', img: '/certs/python-udemy.jpg', pdf: '/docs/Python_Udemy_Certificate.pdf' },
+  { t: 'ASME HPVC: Critical Design Review', by: 'Team Ragnar · Global Rank 9, National Rank 3', yr: '2021', ic: 'fa-bicycle', img: '/certs/asme-hpvc.jpg', pdf: '/docs/ASME_HPVC_Certificate.pdf' },
+  { t: 'L&T TECHgium 5th Edition', by: 'National Finalist · L&T Technology Services', yr: '2022', ic: 'fa-medal', img: '/certs/techgium-finalist.jpg', pdf: '/docs/TECHgium_Finalist_Certificate.pdf' },
+  { t: 'Published Research Chapter', by: 'Springer Nature · Advances in Energy & Sustainability', yr: '2024', ic: 'fa-book-open', img: '/certs/springer-chapter.jpg', link: 'https://doi.org/10.1007/978-981-97-7308-4_10' },
+  { t: 'Design Internship Certificate', by: 'Primetals Technologies (Mitsubishi Heavy Industries JV)', yr: '2022', ic: 'fa-gears', img: '/certs/primetals-internship.jpg', pdf: '/docs/Primetals_Internship_Certificate.pdf' },
+  { t: 'B.Tech Mechanical Engineering', by: 'IIEST Shibpur · First Class', yr: '2023', ic: 'fa-graduation-cap', img: '/certs/btech-iiest.jpg', pdf: '/docs/BTech_Degree_IIEST.pdf' },
+  { t: 'Global Management Challenge India', by: 'Top 99 of 1,344 teams · 1st in group', yr: '2026', ic: 'fa-trophy' },
 ];
 
 function Credentials() {
@@ -740,13 +759,16 @@ function Credentials() {
             return (
               <motion.div key={c.t} whileHover={{ y: -6 }} className="rounded-xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.07)]">
                 <button onClick={() => setView(k)} className={`relative w-full aspect-[4/3] flex items-center justify-center transition-colors ${on ? 'bg-gradient-to-b from-mint to-lime/60' : 'bg-mint'}`}>
-                  <i className={`fas ${c.ic} text-6xl ${on ? 'text-ink' : 'text-forest/70'}`}></i>
-                  <span className="absolute top-3 left-3 text-[11px] font-bold bg-white px-2 py-0.5 text-forest">{c.yr}</span>
+                  {c.img
+                    ? <img src={c.img} alt={c.t} loading="lazy" className="absolute inset-3 w-[calc(100%-1.5rem)] h-[calc(100%-1.5rem)] object-contain bg-white rounded shadow-sm" />
+                    : <i className={`fas ${c.ic} text-6xl ${on ? 'text-ink' : 'text-forest/70'}`}></i>}
+                  {c.img && <span className="absolute bottom-3 right-3 text-[10px] font-bold bg-lime text-ink px-2 py-0.5 rounded-full"><i className="fas fa-circle-check mr-1"></i>Verified</span>}
+                  <span className="absolute top-3 left-3 z-[1] text-[11px] font-bold bg-forest text-white px-2 py-0.5 rounded-full">{c.yr}</span>
                   <AnimatePresence>
                     {on && (
-                      <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="absolute right-3 top-3 flex flex-col gap-2">
+                      <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="absolute right-3 top-3 z-[1] flex flex-col gap-2">
                         <span onClick={(e) => { e.stopPropagation(); setView(k); }} title="View certificate" className="w-9 h-9 rounded-full bg-white text-forest flex items-center justify-center hover:bg-forest hover:text-white"><i className="fas fa-eye text-xs"></i></span>
-                        <a onClick={(e) => e.stopPropagation()} href={LINKEDIN} target="_blank" rel="noopener noreferrer" title="See on LinkedIn" className="w-9 h-9 rounded-full bg-white text-forest flex items-center justify-center hover:bg-forest hover:text-white"><i className="fab fa-linkedin-in text-xs"></i></a>
+                        <a onClick={(e) => e.stopPropagation()} href={c.pdf || c.link || LINKEDIN} target="_blank" rel="noopener noreferrer" title={c.pdf ? 'Open PDF' : c.link ? 'Open publication' : 'See on LinkedIn'} className="w-9 h-9 rounded-full bg-white text-forest flex items-center justify-center hover:bg-forest hover:text-white"><i className={`${c.pdf || c.link ? 'fas fa-file-arrow-down' : 'fab fa-linkedin-in'} text-xs`}></i></a>
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -763,13 +785,20 @@ function Credentials() {
       </div>
       <Modal open={!!sel} onClose={() => setView(null)}>
         {sel && (
-          <div className="p-8">
-            <div className="aspect-[4/3] bg-mint rounded-xl flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-forest/20">
-              <i className={`fas ${sel.ic} text-6xl text-forest`}></i>
-              <p className="mt-4 text-sm text-mute">Certificate image coming soon</p>
-            </div>
+          <div className="p-6 md:p-8">
+            {sel.img
+              ? <img src={sel.img} alt={sel.t} className="w-full rounded-xl border border-black/5 shadow-sm" />
+              : <div className="aspect-[4/3] bg-mint rounded-xl flex flex-col items-center justify-center text-center p-8">
+                  <i className={`fas ${sel.ic} text-6xl text-forest`}></i>
+                  <p className="mt-4 text-sm text-mute">Certificate available on request</p>
+                </div>}
             <h3 className="font-display font-bold text-2xl mt-6">{sel.t}</h3>
             <p className="text-forest font-semibold">{sel.by} · {sel.yr}</p>
+            {sel.code && <p className="text-xs text-mute mt-2">Forage enrolment verification code: <span className="font-mono text-ink">{sel.code}</span></p>}
+            <div className="flex flex-wrap gap-3 mt-5">
+              {sel.pdf && <a href={sel.pdf} target="_blank" rel="noopener noreferrer" className="rounded-full px-6 py-3 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors"><i className="fas fa-file-pdf mr-2"></i>Open original PDF</a>}
+              {sel.link && <a href={sel.link} target="_blank" rel="noopener noreferrer" className="rounded-full px-6 py-3 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors"><i className="fas fa-arrow-up-right-from-square mr-2"></i>View on Springer</a>}
+            </div>
           </div>
         )}
       </Modal>
@@ -822,7 +851,7 @@ function FAQ() {
 // ============ TESTIMONIAL → AWARDS SLIDER ============
 const AWARDS = [
   { q: 'Cleared the national qualifiers of Global Management Challenge India 2026, ranking 1st in our group and among the top 99 of 1,344 teams.', who: 'Global Management Challenge', role: 'India 2026', ic: 'fa-trophy' },
-  { q: 'Achieved Global Rank 9 and National Rank 3 at ASME HPVC 2020, working in a cross-functional engineering design team.', who: 'ASME HPVC', role: 'Human Powered Vehicle Challenge 2020', ic: 'fa-bicycle' },
+  { q: 'Achieved Global Rank 9 and National Rank 3 in the Critical Design Review of ASME HPVC 2021 with Team Ragnar, in a cross-functional engineering design team.', who: 'ASME HPVC', role: 'Human Powered Vehicle Challenge 2021', ic: 'fa-bicycle' },
   { q: 'Qualified as National Finalist in L&T TECHgium 5th Edition, competing against the top engineering teams across India.', who: 'L&T TECHgium', role: '5th Edition · National Finalist', ic: 'fa-medal' },
   { q: 'Co-authored a peer-reviewed research chapter on Cascade Refrigeration Systems, published by Springer Nature and the ISHRAE Journal.', who: 'Springer Nature & ISHRAE', role: 'Published Research', ic: 'fa-book-open' },
 ];
