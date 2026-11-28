@@ -203,10 +203,15 @@ function Navbar() {
     <nav className={`sticky top-0 z-50 bg-white transition-shadow ${scrolled ? 'shadow-[0_8px_30px_rgba(0,0,0,0.06)]' : ''}`}>
       <div className="flex items-center justify-between px-5 lg:px-10 h-[78px]">
         <button onClick={() => scrollTo('home')} className="flex items-center gap-2.5">
-          <span className="relative w-9 h-9">
-            <span className="absolute inset-0 bg-forest" style={{ clipPath: 'polygon(50% 0,100% 100%,0 100%)' }}></span>
-            <span className="absolute right-0 bottom-0 w-3.5 h-3.5 bg-lime" style={{ clipPath: 'polygon(50% 0,100% 100%,0 100%)' }}></span>
-          </span>
+          <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0 group" aria-label="AS monogram">
+            <rect width="40" height="40" rx="11" fill="#1a4137" />
+            <text x="20" y="22.5" textAnchor="middle" fontFamily="Bricolage Grotesque, sans-serif" fontWeight="800" fontSize="19" fill="#fff" letterSpacing="-1">AS</text>
+            <line x1="9" y1="30" x2="31" y2="30" stroke="#c6d936" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="3 3.2">
+              <animate attributeName="stroke-dashoffset" from="0" to="-12.4" dur="1.2s" repeatCount="indefinite" />
+            </line>
+            <circle cx="9" cy="30" r="2.6" fill="#c6d936" />
+            <circle cx="31" cy="30" r="2.6" fill="#c6d936" />
+          </svg>
           <span className="font-display font-bold text-2xl text-head">Aritra<span className="text-forest">.</span></span>
         </button>
         <div className="hidden lg:flex items-center gap-9">
