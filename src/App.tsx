@@ -277,8 +277,8 @@ function Hero() {
       </div>
       {[
         { t: '€125M', s: 'capex package', x: '62%', y: '18%' },
-        { t: '13+', s: 'vendors managed', x: '82%', y: '40%' },
-        { t: 'B1', s: 'French · C2 English', x: '66%', y: '70%' },
+        { t: '13+', s: 'vendors managed', x: '84%', y: '20%' },
+        { t: 'B1', s: 'French · C2 English', x: '57%', y: '50%' },
       ].map((c, k) => (
         <motion.div key={k} className="absolute hidden lg:block bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-5 py-3 z-[5]" style={{ left: c.x, top: c.y }}
           animate={{ y: [0, -12, 0] }} transition={{ duration: 5, delay: k * 1.2, repeat: Infinity }}>
