@@ -1,148 +1,162 @@
-import { useState, useEffect, useRef, createContext, useContext } from 'react';
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
-import { cvContent } from './cvData';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useInView, animate } from 'framer-motion';
 
-// ============ PROJECT FILTER CONTEXT ============
-// Lets the hero's skill tags filter the Projects section by clicking one.
-const ProjectFilterContext = createContext<{
-  filter: string | null;
-  setFilter: (f: string | null) => void;
-}>({ filter: null, setFilter: () => {} });
+// ============ DATA ============
+const EMAIL = 'aritra.sreemany@edu.em-lyon.com';
+const PHONE = '+91 9073549642';
+const LINKEDIN = 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/';
+const LOCATION = 'Caluire-et-Cuire, Lyon, France';
+const FORMSPREE = 'https://formspree.io/f/xkjrqjyb';
 
-// ============ CV DOWNLOAD FUNCTION ============
-export type CVVariant =
-  | 'operations'
-  | 'marketing'
-  | 'luxury'
-  | 'productManagement'
-  | 'strategyConsulting'
-  | 'finance';
+const CVS: { file: string; label: string; icon: string }[] = [
+  { file: 'cv-general.pdf', label: 'General Business Internship', icon: 'fa-briefcase' },
+  { file: 'cv-operations-supply-chain.pdf', label: 'Operations & Supply Chain', icon: 'fa-truck-fast' },
+  { file: 'cv-project-management-operations.pdf', label: 'Project Management & Ops', icon: 'fa-diagram-project' },
+  { file: 'cv-strategy-consulting.pdf', label: 'Strategy Consulting', icon: 'fa-chess-knight' },
+  { file: 'cv-business-management.pdf', label: 'Business Management', icon: 'fa-building' },
+  { file: 'cv-business-development.pdf', label: 'Business Development', icon: 'fa-handshake' },
+  { file: 'cv-sales-marketing.pdf', label: 'Sales & Marketing', icon: 'fa-bullhorn' },
+  { file: 'cv-luxury-marketing.pdf', label: 'Luxury Marketing', icon: 'fa-gem' },
+  { file: 'cv-product-management.pdf', label: 'Product Management', icon: 'fa-cubes' },
+  { file: 'cv-finance.pdf', label: 'Finance', icon: 'fa-chart-line' },
+];
 
-const CV_FILES: Record<CVVariant, { file: string; name: string }> = {
-  operations: { file: '/cv-operations.pdf', name: 'Aritra_Sreemany_CV_Operations.pdf' },
-  marketing: { file: '/cv-marketing.pdf', name: 'Aritra_Sreemany_CV_Marketing.pdf' },
-  luxury: { file: '/cv-luxury-marketing.pdf', name: 'Aritra_Sreemany_CV_Luxury_Marketing.pdf' },
-  productManagement: { file: '/cv-product-management.pdf', name: 'Aritra_Sreemany_CV_Product_Management.pdf' },
-  strategyConsulting: { file: '/cv-strategy-consulting.pdf', name: 'Aritra_Sreemany_CV_Strategy_Consulting.pdf' },
-  finance: { file: '/cv-finance.pdf', name: 'Aritra_Sreemany_CV_Finance.pdf' },
-};
+const NAV = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'services', label: 'Expertise' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'credentials', label: 'Credentials' },
+  { id: 'contact', label: 'Contact' },
+];
 
-const downloadCV = async (variant: CVVariant = 'operations') => {
-  const { file, name } = CV_FILES[variant];
-  try {
-    const response = await fetch(file);
-    if (response.ok) {
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      return;
-    }
-  } catch (e) {
-    // If fetch fails, fall back to embedded text CV
-  }
-  // Fallback: use the embedded text CV content
-  const blob = new Blob([cvContent], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'Aritra_Sreemany_CV.txt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
+const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
-// ============ SMOOTH ANCHOR SCROLL ============
-// Fixes two bugs: (1) native hash-jump landing in the wrong place because
-// it fires before the mobile menu's close animation settles the layout;
-// (2) deep-linking straight to /#section on first load doing nothing
-// because the target id doesn't exist in the DOM yet when the browser
-// tries to jump to it (this is a client-rendered SPA).
-const NAVBAR_OFFSET = 80;
-
-function scrollToSection(id: string) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_OFFSET;
-  window.scrollTo({ top, behavior: 'smooth' });
-  window.history.replaceState(null, '', `#${id}`);
+// ============ SHARED BITS ============
+function Eyebrow({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+  return (
+    <span className={`inline-block px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.12em] font-display ${dark ? 'bg-lime text-ink' : 'bg-lime text-ink'}`}>
+      {children}
+    </span>
+  );
 }
 
-function useHashScrollOnLoad() {
+// heading that reveals word by word, like the template's scroll-in titles
+function RevealHeading({ text, className = '', light = false }: { text: string; className?: string; light?: boolean }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  return (
+    <h2 ref={ref} className={`font-display font-bold text-3xl md:text-5xl leading-[1.15] ${className}`} style={light ? { color: '#fff' } : undefined}>
+      {text.split(' ').map((w, i) => (
+        <motion.span
+          key={i}
+          className="inline-block mr-[0.25em]"
+          initial={{ opacity: 0.15, y: 12 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: i * 0.06, duration: 0.45 }}
+        >
+          {w}
+        </motion.span>
+      ))}
+    </h2>
+  );
+}
+
+function Counter({ to, decimals = 0, prefix = '', suffix = '' }: { to: number; decimals?: number; prefix?: string; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  const [val, setVal] = useState(0);
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '');
-    if (!hash) return;
-    // Wait for the SPA to mount and lay out before jumping.
-    const t = setTimeout(() => scrollToSection(hash), 150);
-    return () => clearTimeout(t);
-  }, []);
+    if (!inView) return;
+    const c = animate(0, to, { duration: 1.6, ease: 'easeOut', onUpdate: (v) => setVal(v) });
+    return () => c.stop();
+  }, [inView, to]);
+  return <span ref={ref}>{prefix}{val.toFixed(decimals)}{suffix}</span>;
 }
 
-// ============ CV DOWNLOAD BUTTON (with variant picker) ============
-function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { variant?: 'split' | 'block'; label?: string }) {
+function Ring({ pct, size = 84, stroke = 6, track = 'rgba(255,255,255,0.15)', color = '#c6d936', children }: { pct: number; size?: number; stroke?: number; track?: string; color?: string; children?: React.ReactNode }) {
+  const ref = useRef<SVGSVGElement>(null);
+  const inView = useInView(ref, { once: true });
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg ref={ref} width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={track} strokeWidth={stroke} fill="none" />
+        <motion.circle
+          cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round"
+          strokeDasharray={c}
+          initial={{ strokeDashoffset: c }}
+          animate={inView ? { strokeDashoffset: c * (1 - pct / 100) } : {}}
+          transition={{ duration: 1.6, ease: 'easeOut' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">{children}</div>
+    </div>
+  );
+}
+
+function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [onClose]);
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div className="fixed inset-0 z-[90] bg-ink/70 backdrop-blur-sm flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
+          <motion.div
+            className="relative bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+            initial={{ scale: 0.94, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.94, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 w-10 h-10 rounded-full bg-mint hover:bg-lime text-ink transition-colors z-10">
+              <i className="fas fa-xmark"></i>
+            </button>
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ============ CV DROPDOWN ============
+function CVDropdown({ label = 'Download CV', variant = 'lime', align = 'left' }: { label?: string; variant?: 'lime' | 'dark' | 'outline'; align?: 'left' | 'right' }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    const onClickAway = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onClickAway);
-    return () => document.removeEventListener('mousedown', onClickAway);
+    const away = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
+    document.addEventListener('mousedown', away);
+    return () => document.removeEventListener('mousedown', away);
   }, []);
-
-  const options: { key: CVVariant; label: string }[] = [
-    { key: 'operations', label: 'Operations' },
-    { key: 'marketing', label: 'Marketing' },
-    { key: 'luxury', label: 'Luxury Marketing' },
-    { key: 'productManagement', label: 'Product Management' },
-    { key: 'strategyConsulting', label: 'Strategy Consulting' },
-    { key: 'finance', label: 'Finance' },
-  ];
-
-  const baseBtn = variant === 'block'
-    ? 'w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/20 transition-all hover:-translate-y-0.5'
-    : 'flex items-center gap-2 px-5 py-3 bg-orange-500/10 border border-orange-500/30 rounded-full text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/50 transition-all';
-
+  const styles = {
+    lime: 'bg-lime text-ink hover:bg-white',
+    dark: 'bg-forest text-white hover:bg-lime hover:text-ink',
+    outline: 'bg-transparent text-white border border-white/40 hover:bg-white hover:text-ink',
+  }[variant];
   return (
     <div ref={ref} className="relative inline-block">
-      <div className={variant === 'block' ? 'flex gap-2' : 'flex items-center gap-1'}>
-        <button onClick={() => downloadCV('operations')} className={baseBtn}>
-          <i className="fas fa-download"></i>
-          <span className={variant === 'block' ? 'ml-2' : 'text-sm font-medium'}>{label}</span>
-        </button>
-        <button
-          onClick={() => setOpen((o) => !o)}
-          aria-label="Choose CV variant"
-          className={variant === 'block'
-            ? 'px-4 rounded-xl bg-gray-800 border border-gray-700 text-gray-300 hover:border-orange-500/50 hover:text-orange-400 transition-all'
-            : 'px-3 py-3 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:bg-orange-500/20 transition-all'}
-        >
-          <i className={`fas fa-chevron-down text-xs transition-transform ${open ? 'rotate-180' : ''}`}></i>
-        </button>
-      </div>
+      <button onClick={() => setOpen((o) => !o)} className={`flex items-center gap-3 px-7 py-4 font-display font-semibold text-sm transition-colors ${styles}`}>
+        <i className="fas fa-download"></i>
+        {label}
+        <i className={`fas fa-chevron-down text-xs transition-transform ${open ? 'rotate-180' : ''}`}></i>
+      </button>
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-20"
+            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-2 w-72 bg-white rounded-xl shadow-2xl overflow-hidden z-50 border border-black/5`}
           >
-            {options.map((opt) => (
-              <button
-                key={opt.key}
-                onClick={() => { downloadCV(opt.key); setOpen(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-orange-500/10 hover:text-orange-400 transition-colors"
-              >
-                {opt.label} CV
-              </button>
+            <div className="px-4 py-3 bg-forest text-white text-xs font-bold uppercase tracking-wider font-display">Pick the CV for the role</div>
+            {CVS.map((cv) => (
+              <a key={cv.file} href={`/${cv.file}`} download={`Aritra_Sreemany_CV_${cv.label.replace(/[^A-Za-z]+/g, '_')}.pdf`} onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-ink hover:bg-lime/30 transition-colors">
+                <i className={`fas ${cv.icon} w-5 text-forest`}></i>
+                {cv.label}
+              </a>
             ))}
           </motion.div>
         )}
@@ -151,99 +165,75 @@ function CVDownloadButton({ variant = 'split', label = 'Download CV' }: { varian
   );
 }
 
-// ============ NAVBAR ============
+// ============ TOP BAR + NAVBAR ============
+function TopBar() {
+  return (
+    <div className="hidden lg:flex bg-white border-b border-black/5 text-[13px] text-ink">
+      <div className="flex-1 flex items-center gap-8 px-10 py-2.5">
+        <a href={`mailto:${EMAIL}`} className="flex items-center gap-2 hover:text-forest"><i className="fas fa-envelope text-forest"></i>{EMAIL}</a>
+        <span className="flex items-center gap-2"><i className="fas fa-location-dot text-forest"></i>{LOCATION}</span>
+      </div>
+      <div className="bg-lime flex items-center gap-6 px-10 py-2.5 font-medium" style={{ clipPath: 'polygon(14px 0,100% 0,100% 100%,0 100%)' }}>
+        <button onClick={() => scrollTo('about')} className="hover:underline">About</button>
+        <button onClick={() => scrollTo('faq')} className="hover:underline">FAQs</button>
+        <button onClick={() => scrollTo('contact')} className="hover:underline">Contact</button>
+        <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i className="fab fa-linkedin-in"></i></a>
+        <a href={`mailto:${EMAIL}`} aria-label="Email"><i className="fas fa-at"></i></a>
+      </div>
+    </div>
+  );
+}
+
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
-
+  const [menu, setMenu] = useState(false);
+  const [active, setActive] = useState('home');
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-      const sections = ['home', 'about', 'experience', 'education', 'achievements', 'projects', 'skills', 'contact'];
-      for (const section of sections.reverse()) {
-        const el = document.getElementById(section);
-        if (el && window.scrollY >= el.offsetTop - 200) {
-          setActiveSection(section);
-          break;
-        }
+    const on = () => {
+      setScrolled(window.scrollY > 60);
+      for (const n of [...NAV].reverse()) {
+        const el = document.getElementById(n.id);
+        if (el && el.getBoundingClientRect().top < 140) { setActive(n.id); break; }
       }
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', on);
+    return () => window.removeEventListener('scroll', on);
   }, []);
-
-  const links = [
-    { id: 'about', label: 'About' },
-    { id: 'experience', label: 'Experience' },
-    { id: 'education', label: 'Education' },
-    { id: 'achievements', label: 'Achievements' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'skills', label: 'Skills' },
-    { id: 'contact', label: 'Contact' },
-  ];
-
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-gray-950/80 backdrop-blur-xl border-b border-orange-500/10' : 'bg-transparent'}`}>
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <motion.a
-          href="#home"
-          className="text-xl font-bold tracking-tight"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <span className="text-orange-400">A</span>ritra<span className="text-orange-400">.</span>
-        </motion.a>
-
-        <div className="hidden md:flex items-center gap-1">
-          {links.map((link, i) => (
-            <motion.a
-              key={link.id}
-              href={`#${link.id}`}
-              onClick={(e) => { e.preventDefault(); scrollToSection(link.id); }}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === link.id
-                ? 'text-orange-400 bg-orange-400/10'
-                : 'text-gray-400 hover:text-white'
-                }`}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-            >
-              {link.label}
-            </motion.a>
+    <nav className={`sticky top-0 z-50 bg-white transition-shadow ${scrolled ? 'shadow-[0_8px_30px_rgba(0,0,0,0.06)]' : ''}`}>
+      <div className="flex items-center justify-between px-5 lg:px-10 h-[78px]">
+        <button onClick={() => scrollTo('home')} className="flex items-center gap-2.5">
+          <span className="relative w-9 h-9">
+            <span className="absolute inset-0 bg-forest" style={{ clipPath: 'polygon(50% 0,100% 100%,0 100%)' }}></span>
+            <span className="absolute right-0 bottom-0 w-3.5 h-3.5 bg-lime" style={{ clipPath: 'polygon(50% 0,100% 100%,0 100%)' }}></span>
+          </span>
+          <span className="font-display font-bold text-2xl text-head">Aritra<span className="text-forest">.</span></span>
+        </button>
+        <div className="hidden lg:flex items-center gap-9">
+          {NAV.map((n) => (
+            <button key={n.id} onClick={() => scrollTo(n.id)}
+              className={`relative font-display text-[15px] font-medium transition-colors ${active === n.id ? 'text-forest' : 'text-ink hover:text-forest'}`}>
+              {n.label}
+              {active === n.id && <motion.span layoutId="navline" className="absolute -bottom-2 left-0 right-0 h-0.5 bg-lime" />}
+            </button>
           ))}
         </div>
-
-        <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-white text-xl">
-          <i className={`fas ${menuOpen ? 'fa-times' : 'fa-bars'}`}></i>
+        <div className="hidden lg:flex items-center gap-6">
+          <a href={`tel:${PHONE.replace(/\s/g, '')}`} className="flex items-center gap-3 group">
+            <span className="w-11 h-11 rounded-full bg-lime flex items-center justify-center text-ink group-hover:bg-forest group-hover:text-lime transition-colors"><i className="fas fa-phone"></i></span>
+            <span className="text-xs leading-tight"><span className="block text-forest font-semibold">PHONE:</span><span className="text-ink text-sm">🇮🇳 {PHONE}</span></span>
+          </a>
+          <button onClick={() => scrollTo('contact')} className="px-7 py-3.5 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">Contact Now</button>
+        </div>
+        <button onClick={() => setMenu(!menu)} className="lg:hidden w-11 h-11 flex items-center justify-center bg-forest text-white" aria-label="Menu">
+          <i className={`fas ${menu ? 'fa-xmark' : 'fa-bars'}`}></i>
         </button>
       </div>
-
       <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            className="md:hidden bg-gray-950/95 backdrop-blur-xl border-t border-orange-500/10 px-6 py-6 flex flex-col gap-3"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            {links.map((link) => (
-              <a
-                key={link.id}
-                href={`#${link.id}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setMenuOpen(false);
-                  // Close the menu first and let its collapse animation finish
-                  // before scrolling — scrolling while the menu is still open
-                  // computes the target position against the wrong (taller) layout.
-                  setTimeout(() => scrollToSection(link.id), 320);
-                }}
-                className="text-gray-300 hover:text-orange-400 py-2 font-medium transition-colors"
-              >
-                {link.label}
-              </a>
+        {menu && (
+          <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="lg:hidden overflow-hidden bg-forest">
+            {NAV.map((n) => (
+              <button key={n.id} onClick={() => { scrollTo(n.id); setMenu(false); }} className="block w-full text-left px-6 py-3.5 text-white border-b border-white/10 font-display">{n.label}</button>
             ))}
           </motion.div>
         )}
@@ -252,1145 +242,775 @@ function Navbar() {
   );
 }
 
-// ============ HERO ============
+// ============ HERO SLIDER ============
+const SLIDES = [
+  { eyebrow: 'OPERATIONS, PLANNING & EXECUTION', l1: 'Delivering', l2: 'Industrial Projects', l3: 'On Schedule', side: '35 months running a €125M steel expansion package, from vendor PO to commissioning.' },
+  { eyebrow: 'ANALYTICS, FORECASTING & STRATEGY', l1: 'Turning Data', l2: 'Into Decisions', l3: 'That Save Cost', side: 'Excel, Power BI and SAP trackers that cut tracking errors by 20%+ and steered raw-material planning.' },
+  { eyebrow: 'MiM @ EMLYON BUSINESS SCHOOL · 2027', l1: 'Engineer', l2: 'Turned Business', l3: 'Generalist', side: 'Available for a business internship in France & Europe, January to December 2027.' },
+];
+
 function Hero() {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const { setFilter } = useContext(ProjectFilterContext);
-
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((x) => (x + 1) % SLIDES.length), 6500);
+    return () => clearInterval(t);
+  }, []);
+  const s = SLIDES[i];
   return (
-    <section id="home" ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950">
-      {/* Animated background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-300/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+    <section id="home" className="relative bg-ink overflow-hidden min-h-[640px] lg:min-h-[760px] flex items-center">
+      <div className="absolute inset-0 grid-pattern opacity-70"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/95 to-forest/70"></div>
+      {/* portrait block, right side */}
+      <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[48%] hidden md:block">
+        <img src="/aritra-photo.jpg" alt="Aritra Sreemany" className="absolute inset-0 w-full h-full object-cover object-top opacity-40 grayscale mix-blend-luminosity" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/60 to-transparent"></div>
+        {/* floating squares like the template */}
+        {[[12, 18], [26, 30], [60, 14], [74, 46], [40, 62], [82, 70]].map(([x, y], k) => (
+          <motion.span key={k} className="absolute w-14 h-14 bg-white/[0.06] border border-white/10" style={{ left: `${x}%`, top: `${y}%` }}
+            animate={{ opacity: [0.3, 0.9, 0.3] }} transition={{ duration: 4, delay: k * 0.6, repeat: Infinity }} />
+        ))}
       </div>
-
-      {/* Grid */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(16,185,129,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.3) 1px, transparent 1px)', backgroundSize: '60px 60px' }}></div>
-
-      <motion.div style={{ y, opacity }} className="relative z-10 max-w-5xl mx-auto px-6 pt-32 md:pt-24 text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="relative w-32 h-32 mx-auto mb-7"
-        >
-          <div className="absolute -top-2 -left-2 w-36 h-36 bg-orange-500/90" style={{ borderRadius: '42% 58% 55% 45% / 48% 44% 56% 52%' }}></div>
-          <img
-            src="/aritra-photo.jpg"
-            alt="Aritra Sreemany"
-            className="relative w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-2xl -rotate-3"
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-500 text-gray-950 text-xs font-bold uppercase tracking-wider rounded-full mb-8 -rotate-2 shadow-[3px_3px_0_rgba(0,0,0,0.3)]"
-        >
-          MiM '28 · emlyon business school
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold text-white uppercase leading-[1.0] mb-2 tracking-tight"
-        >
-          Aritra<br />
-          <span className="font-accent italic font-medium normal-case text-orange-400 -rotate-1 inline-block text-[0.82em]">
-            Sreemany
-          </span>
-        </motion.h1>
-
-        <svg className="w-16 h-3 mx-auto mb-5 opacity-80" viewBox="0 0 70 14">
-          <path d="M2 8 Q 10 2, 18 8 T 34 8 T 50 8 T 66 8" stroke="#e8683c" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-        </svg>
-
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-2 leading-relaxed"
-        >
-          Engineer turned business generalist, built for operations, strategy, analytics, and marketing. Three years turning complex projects into measurable results — now bringing that same rigor to management internships across Europe.
-        </motion.p>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.25 }}
-          className="font-accent italic text-orange-400/90 text-sm md:text-base mb-6"
-        >
-          three years of turning chaos into charts, now doing it in French.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="flex flex-wrap justify-center gap-3 mt-6 mb-10"
-        >
-          {['Operations', 'Strategy', 'Analytics', 'Marketing', 'Project Management'].map((tag, i) => (
-            <button
-              key={tag}
-              onClick={() => {
-                setFilter(tag);
-                setTimeout(() => scrollToSection('projects'), 50);
-              }}
-              className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm hover:border-orange-500/40 hover:text-orange-400 hover:bg-orange-500/5 hover:-translate-y-0.5 transition-all cursor-pointer"
-              style={{ transform: `rotate(${i % 2 === 0 ? -1.5 : 1.5}deg)` }}
-              title={`See ${tag.toLowerCase()} projects`}
-            >
-              {tag}
-            </button>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-        >
-          <a href="#experience" onClick={(e) => { e.preventDefault(); scrollToSection('experience'); }} className="px-8 py-4 bg-orange-500 text-gray-950 rounded-full font-bold border-2 border-gray-950 shadow-[4px_4px_0_rgba(232,104,60,0.35)] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_rgba(232,104,60,0.4)] transition-all">
-            View Experience
-          </a>
-          <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }} className="px-8 py-4 border-2 border-gray-700 text-gray-300 rounded-full font-bold hover:border-orange-500/50 hover:text-orange-400 transition-all">
-            Get in Touch
-          </a>
-        </motion.div>
-
-        {/* Quick Connect Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-10 flex flex-wrap justify-center gap-3"
-        >
-          <a
-            href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-orange-500/50 hover:text-orange-400 hover:bg-orange-500/5 transition-all"
-          >
-            <i className="fab fa-linkedin-in"></i>
-            <span className="text-sm font-medium">LinkedIn</span>
-          </a>
-          <a
-            href="tel:+919073549642"
-            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-orange-500/50 hover:text-orange-400 hover:bg-orange-500/5 transition-all"
-          >
-            <i className="fas fa-phone"></i>
-            <span className="text-sm font-medium">Call</span>
-          </a>
-          <a
-            href="mailto:aritra.sreemany@edu.em-lyon.com"
-            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-orange-500/50 hover:text-orange-400 hover:bg-orange-500/5 transition-all"
-          >
-            <i className="fas fa-envelope"></i>
-            <span className="text-sm font-medium">Email</span>
-          </a>
-          <CVDownloadButton />
-        </motion.div>
-
-        {/* Quick Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto"
-        >
-          {[
-            { number: '3 yrs', label: 'Industry Experience' },
-            { number: '₹1,400Cr', label: 'Project Value' },
-            { number: 'Global 9th', label: 'ASME HPVC Rank' },
-            { number: '3', label: 'Languages (Native)' },
-          ].map((stat, i) => (
-            <div key={i} className="text-center p-4 rounded-2xl bg-gray-900/50 border border-gray-800/50">
-              <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">{stat.number}</div>
-              <div className="text-gray-500 text-xs mt-1 uppercase tracking-wider">{stat.label}</div>
+      <div className="relative z-10 w-full px-6 lg:px-16 py-20 grid lg:grid-cols-[1.3fr_1fr] gap-10 items-end">
+        <AnimatePresence mode="wait">
+          <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.6 }}>
+            <p className="text-lime text-xs md:text-sm font-bold tracking-[0.14em] font-display underline underline-offset-4 decoration-lime/40 mb-6">{s.eyebrow}</p>
+            <h1 className="font-display text-white leading-[1.02] text-5xl md:text-7xl lg:text-[88px]" style={{ color: '#fff' }}>
+              <span className="block font-bold">{s.l1}</span>
+              <span className="block font-light">{s.l2}</span>
+              <span className="block font-bold">{s.l3}</span>
+            </h1>
+            <div className="flex flex-wrap gap-4 mt-10">
+              <CVDropdown variant="lime" />
+              <button onClick={() => scrollTo('experience')} className="px-7 py-4 border border-white/40 text-white font-display font-semibold text-sm hover:bg-white hover:text-ink transition-colors">View Experience</button>
             </div>
-          ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1 }}
-      >
-        <span className="text-gray-500 text-[11px] font-medium uppercase tracking-[0.2em]">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <i className="fas fa-chevron-down text-orange-400/70 text-sm"></i>
-        </motion.div>
-      </motion.div>
+          </motion.div>
+        </AnimatePresence>
+        <div className="lg:pb-4">
+          <AnimatePresence mode="wait">
+            <motion.p key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-white font-display font-semibold text-lg max-w-sm lg:ml-auto">{s.side}</motion.p>
+          </AnimatePresence>
+          <div className="flex gap-3 mt-8 lg:justify-end">
+            {SLIDES.map((_, k) => (
+              <button key={k} onClick={() => setI(k)} aria-label={`Slide ${k + 1}`}
+                className={`h-2.5 rounded-full transition-all ${k === i ? 'w-10 bg-lime' : 'w-2.5 bg-white/40 hover:bg-white'}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+      <button onClick={() => setI((i - 1 + SLIDES.length) % SLIDES.length)} aria-label="Previous slide" className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/20 text-white items-center justify-center hover:bg-lime hover:text-ink hover:border-lime transition-colors z-10"><i className="fas fa-arrow-left text-sm"></i></button>
+      <button onClick={() => setI((i + 1) % SLIDES.length)} aria-label="Next slide" className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/20 text-white items-center justify-center hover:bg-lime hover:text-ink hover:border-lime transition-colors z-10"><i className="fas fa-arrow-right text-sm"></i></button>
     </section>
-  );
-}
-
-// ============ SECTION WRAPPER ============
-function Section({ id, children, className = '' }: { id: string; children: React.ReactNode; className?: string }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  return (
-    <section id={id} ref={ref} className={`py-24 ${className}`}>
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7 }}
-        className="max-w-6xl mx-auto px-6"
-      >
-        {children}
-      </motion.div>
-    </section>
-  );
-}
-
-function SectionTitle({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) {
-  return (
-    <div className="mb-16">
-      <span className="text-orange-400 font-semibold text-sm uppercase tracking-wider">{eyebrow}</span>
-      <h2 className="text-4xl md:text-5xl font-bold text-white mt-3">{title}</h2>
-      {description && <p className="text-gray-400 text-lg mt-4 max-w-2xl">{description}</p>}
-    </div>
   );
 }
 
 // ============ ABOUT ============
 function About() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
   return (
-    <Section id="about" className="bg-gray-950">
-      <SectionTitle eyebrow="About Me" title="Engineer. Leader. Strategist." />
-      <div className="grid lg:grid-cols-5 gap-12">
-        <div className="lg:col-span-3 space-y-6">
-          <p className="text-gray-300 text-lg leading-relaxed">
-            Mechanical engineer from <span className="text-orange-400 font-medium">IIEST Shibpur</span> (B.Tech, 8.93 CGPA), heading to <span className="text-orange-400 font-medium">Emlyon Business School (France)</span> for my Master in Management as part of a dual degree program with <span className="text-orange-400 font-medium">MDI Gurgaon</span>.
-          </p>
-          <p className="text-gray-300 text-lg leading-relaxed">
-            Before this, I spent close to three years at <span className="text-orange-400 font-medium">Jindal Stainless Limited</span>, working on planning, coordination, and overall site execution for large-scale industrial projects. Mostly involved untangling operational bottlenecks, working across teams, and pushing things from paper to ground reality.
-          </p>
-          <p className="text-gray-300 text-lg leading-relaxed">
-            I'm genuinely interested in <span className="text-orange-400 font-medium">operations, marketing, analytics, and strategy</span> — and the systems that keep businesses running. Always open to connecting with people and conversations around business, tech, and anything worth learning about.
-          </p>
-        </div>
-        <div className="lg:col-span-2">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 rounded-3xl p-8 space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-3xl font-bold text-white">
-                AS
-              </div>
-              <div>
-                <div className="text-white font-bold text-lg">Aritra Sreemany</div>
-                <div className="text-gray-400 text-sm">MiM '28 · PGDM-IB '28</div>
-              </div>
+    <section id="about" className="py-24 lg:py-32 px-6 lg:px-16 bg-white">
+      <div className="max-w-[1344px] mx-auto grid lg:grid-cols-2 gap-16 items-center">
+        <div className="relative pb-16 pr-10">
+          <div className="bg-white p-3 shadow-[0_20px_60px_rgba(0,0,0,0.1)] w-[85%]">
+            <div className="relative aspect-[4/5] bg-forest overflow-hidden">
+              <img src="/aritra-photo.jpg" alt="Aritra Sreemany" className="w-full h-full object-cover" />
             </div>
-            <div className="space-y-4">
-              {[
-                { icon: 'fa-graduation-cap', label: 'B.Tech Mechanical', sub: 'IIEST Shibpur — 8.93 CGPA' },
-                { icon: 'fa-building-columns', label: 'MiM @ Emlyon (France)', sub: 'Dual degree with MDI Gurgaon' },
-                { icon: 'fa-briefcase', label: 'Associate Manager, Operations', sub: 'Jindal Stainless — since 2023' },
-                { icon: 'fa-location-dot', label: 'Based in', sub: 'Kolkata → Odisha → Gurgaon → Caluire-et-Cuire, France' },
-                { icon: 'fa-language', label: 'Languages', sub: 'English · Hindi · Bengali · French' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <i className={`fas ${item.icon} text-orange-400 text-xs`}></i>
-                  </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">{item.label}</div>
-                    <div className="text-gray-500 text-xs">{item.sub}</div>
-                  </div>
-                </div>
+          </div>
+          <motion.div whileHover={{ y: -6 }} className="absolute right-0 bottom-0 w-[52%] bg-white p-3 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+            <div className="aspect-square bg-forest grid-pattern flex flex-col items-center justify-center text-center p-4">
+              <span className="font-display font-bold text-5xl text-lime"><Counter to={125} prefix="€" suffix="M" /></span>
+              <span className="text-white/80 text-sm mt-2">BOF expansion project delivered on site</span>
+            </div>
+          </motion.div>
+          <motion.button onClick={() => scrollTo('credentials')} whileHover={{ scale: 1.04 }} className="absolute left-6 bottom-24 bg-white shadow-xl px-5 py-4 text-left">
+            <span className="block font-display font-bold text-head text-sm mb-2">Credentials</span>
+            <span className="flex items-center">
+              {['fa-chess-knight', 'fa-industry', 'fa-leaf', 'fa-python'].map((ic, k) => (
+                <span key={k} className="w-8 h-8 -ml-2 first:ml-0 rounded-full bg-mint border-2 border-white flex items-center justify-center text-forest text-xs"><i className={`${ic === 'fa-python' ? 'fab' : 'fas'} ${ic}`}></i></span>
               ))}
+              <span className="w-8 h-8 -ml-2 rounded-full bg-lime border-2 border-white flex items-center justify-center text-ink text-[10px] font-bold">5+</span>
+            </span>
+          </motion.button>
+        </div>
+        <div ref={ref}>
+          <Eyebrow>About Me</Eyebrow>
+          <RevealHeading text="The Journey From Engineering To Business" className="mt-5" />
+          <p className="mt-6 leading-8">
+            Mechanical engineer from IIEST Shibpur (CGPA 8.93), now a MiM student at emlyon business school specialising in Business Analytics &amp; Consulting, through a dual-degree with MDI Gurgaon. Before this I spent 35 months as Associate Manager, Operations at Jindal Stainless, India's largest stainless steel maker.
+          </p>
+          <div className="mt-8 space-y-6">
+            {[
+              { ic: 'fa-diagram-project', t: 'Project Execution', d: 'Led the full RMHS package of a €125M BOF expansion, from planning and vendor negotiation to commissioning.' },
+              { ic: 'fa-chart-pie', t: 'Planning & Analytics', d: 'Built rolling 3-month raw-material plans and Excel / Power BI trackers that leadership used for decisions.' },
+            ].map((f) => (
+              <div key={f.t} className="flex gap-5 group">
+                <span className="w-14 h-14 shrink-0 rounded-full border border-forest/20 flex items-center justify-center text-forest text-xl group-hover:bg-lime group-hover:border-lime transition-colors"><i className={`fas ${f.ic}`}></i></span>
+                <div><h4 className="font-display font-bold text-lg">{f.t}</h4><p className="mt-1 leading-7">{f.d}</p></div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8">
+            <div className="flex justify-between font-display font-bold text-head text-sm mb-2"><span>Hands-on industry experience</span><span>35 months</span></div>
+            <div className="h-1.5 bg-mint rounded-full overflow-hidden">
+              <motion.div className="h-full bg-forest" initial={{ width: 0 }} animate={inView ? { width: '88%' } : {}} transition={{ duration: 1.6 }} />
+            </div>
+          </div>
+          <div className="mt-10 flex flex-wrap items-center gap-8">
+            <button onClick={() => scrollTo('services')} className="px-8 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">What I Do</button>
+            <div className="flex items-center gap-3">
+              <img src="/aritra-photo.jpg" alt="" className="w-12 h-12 rounded-full object-cover border-2 border-lime" />
+              <div><p className="text-2xl text-head" style={{ fontFamily: 'Caveat, cursive' }}>Aritra Sreemany</p><p className="text-xs text-forest font-semibold">MiM, emlyon '28</p></div>
             </div>
           </div>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }
 
-// ============ EXPERIENCE ============
+// ============ SERVICES (EXPERTISE) ============
+const SERVICES = [
+  { n: '01', t: 'Operations & Supply Chain', ic: 'fa-truck-fast', d: 'Production planning, raw-material forecasting and sourcing decisions under supply shifts.', pts: ['Rolling 3-month production plans setting the stainless grade mix', 'Raw-material forecasts 3 months ahead driving procurement', 'Import vs domestic sourcing calls, flagging shortages early', 'Daily output vs plan monitoring with alternate plans'], cv: 'cv-operations-supply-chain.pdf' },
+  { n: '02', t: 'Project Management', ic: 'fa-diagram-project', d: 'End-to-end package delivery on a €125M capex project, from POs to commissioning.', pts: ['Led an 18-member team commissioning BOF-1 & 2 and a Twin Ladle Furnace', 'Recovered a year-long RMHS delay, finishing 9+ months ahead of other teams', 'Systematised on-site material tracking with live inventory status', 'Bi-monthly reports to senior leadership'], cv: 'cv-project-management-operations.pdf' },
+  { n: '03', t: 'Procurement & Cost', ic: 'fa-handshake', d: 'Vendor negotiation, billing reconciliation and cost optimisation in CAPEX.', pts: ['Negotiated pricing & POs with 13+ vendors and EPC contractors', 'Reconciled €45k–€72k monthly billing in SAP & Excel for audit compliance', 'Plant liaison on an overseas cost-optimisation software rollout'], cv: 'cv-business-development.pdf' },
+  { n: '04', t: 'Analytics & Reporting', ic: 'fa-chart-column', d: 'Excel, Power BI and SAP trackers that turn site data into decisions.', pts: ['Power BI & Excel trackers that cut tracking errors 20%+', 'Advanced Excel, financial modelling, Python basics', 'Month-end reconciliations for leadership reviews'], cv: 'cv-general.pdf' },
+  { n: '05', t: 'Strategy & Consulting', ic: 'fa-chess-knight', d: 'Structured problem-solving sharpened by case competitions and consulting coursework.', pts: ['Top 99 of 1,344 teams, Global Management Challenge India 2026', 'BCG Strategy Consulting & McKinsey Forward programs', 'emlyon specialisation in Business Analytics & Consulting'], cv: 'cv-strategy-consulting.pdf' },
+  { n: '06', t: 'Marketing & Growth', ic: 'fa-bullhorn', d: 'Customer segmentation, pricing and retention, tested in simulation and campus work.', pts: ['7-round brokerage marketing simulation: segments, pricing, discounts', 'Brought brand partners to IIEST tech fests', 'Ran a weekly student newsletter as ASME Co-Secretary'], cv: 'cv-sales-marketing.pdf' },
+];
+
+function Services() {
+  const [start, setStart] = useState(0);
+  const [open, setOpen] = useState<number | null>(null);
+  const per = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : typeof window !== 'undefined' && window.innerWidth < 1200 ? 2 : 3;
+  const visible = Array.from({ length: per }, (_, k) => (start + k) % SERVICES.length);
+  const sel = open !== null ? SERVICES[open] : null;
+  return (
+    <section id="services" className="relative py-24 lg:py-32 bg-paper grid-pattern-light overflow-hidden">
+      <div className="absolute right-0 top-0 h-[300px] w-full lg:w-[42%] bg-forest">
+        <svg className="absolute right-10 top-6 opacity-20" width="260" height="260" viewBox="0 0 260 260"><circle cx="130" cy="130" r="120" stroke="#c6d936" fill="none" /><circle cx="130" cy="130" r="80" stroke="#c6d936" fill="none" /></svg>
+      </div>
+      <div className="relative max-w-[1344px] mx-auto px-6 lg:px-16">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-14">
+          <div><Eyebrow>Expertise</Eyebrow><RevealHeading text="What I Bring To Your Team" className="mt-5" /></div>
+          <div className="flex gap-3 relative z-10">
+            <button onClick={() => setStart((start - 1 + SERVICES.length) % SERVICES.length)} aria-label="Previous" className="w-12 h-12 rounded-full bg-white text-ink hover:bg-lime transition-colors"><i className="fas fa-arrow-left"></i></button>
+            <button onClick={() => setStart((start + 1) % SERVICES.length)} aria-label="Next" className="w-12 h-12 rounded-full bg-lime text-ink hover:bg-white transition-colors"><i className="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
+            {visible.map((idx) => {
+              const s = SERVICES[idx];
+              return (
+                <motion.button layout key={s.n} onClick={() => setOpen(idx)} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+                  className="group relative text-left bg-ink grid-pattern min-h-[420px] p-9 flex flex-col overflow-hidden">
+                  <span className="absolute inset-0 bg-forest translate-y-full group-hover:translate-y-0 transition-transform duration-500"></span>
+                  <i className={`relative fas ${s.ic} text-5xl text-lime`}></i>
+                  <span className="relative mt-auto font-display font-bold text-lime text-lg">{s.n}</span>
+                  <h3 className="relative font-display font-bold text-2xl mt-2" style={{ color: '#fff' }}>{s.t}</h3>
+                  <p className="relative text-white/70 mt-3 leading-7 text-[15px]">{s.d}</p>
+                  <span className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-24 rounded-full bg-forest group-hover:bg-lime flex items-center justify-center text-white group-hover:text-ink transition-colors"><i className="fas fa-arrow-up-right-from-square text-sm"></i></span>
+                </motion.button>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+        <div className="flex justify-center gap-2 mt-10">
+          {SERVICES.map((_, k) => <button key={k} onClick={() => setStart(k)} aria-label={`Go to ${k + 1}`} className={`h-2 rounded-full transition-all ${k === start ? 'w-8 bg-forest' : 'w-2 bg-forest/25'}`} />)}
+        </div>
+      </div>
+      <Modal open={!!sel} onClose={() => setOpen(null)}>
+        {sel && (
+          <div>
+            <div className="bg-ink grid-pattern p-8 pr-16">
+              <i className={`fas ${sel.ic} text-4xl text-lime`}></i>
+              <p className="text-lime font-display font-bold mt-5">{sel.n}</p>
+              <h3 className="font-display font-bold text-3xl" style={{ color: '#fff' }}>{sel.t}</h3>
+            </div>
+            <div className="p-8">
+              <p className="leading-7">{sel.d}</p>
+              <ul className="mt-5 space-y-3">{sel.pts.map((p) => <li key={p} className="flex gap-3 text-ink"><i className="fas fa-check text-forest mt-1.5"></i>{p}</li>)}</ul>
+              <a href={`/${sel.cv}`} download className="inline-flex items-center gap-2 mt-8 px-6 py-3.5 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors"><i className="fas fa-download"></i>Download the matching CV</a>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </section>
+  );
+}
+
+// ============ MISSION & VISION (TABS) ============
+const TABS = [
+  { k: 'About Me', p: 'I like problems where operations, numbers and people meet. At Jindal Stainless that meant chasing EPC contractors, reconciling bills in SAP and rebuilding production plans when supply shifted overnight.', list: ['Cross-functional leadership', 'Stakeholder management', 'Root cause analysis', 'Cost optimisation'] },
+  { k: 'What I Bring', p: 'Three years of shop-floor reality plus business-school frameworks. I can build the tracker, run the vendor call and present the result to leadership in the same week.', list: ['Advanced Excel & Power BI', 'SAP & ERP workflows', 'Vendor & EPC negotiation', 'Leadership reporting'] },
+  { k: "What I'm Looking For", p: 'A 2027 internship in France or Europe in operations, supply chain, strategy, consulting, business development or project management, where I can own a real deliverable from week one.', list: ['Start: January 2027', 'Location: Lyon, Paris or remote', 'French B1 · English C2', 'Full-time internship'] },
+];
+
+function MissionVision() {
+  const [t, setT] = useState(0);
+  return (
+    <section className="py-24 lg:py-32 px-6 lg:px-16 bg-white">
+      <div className="max-w-[1344px] mx-auto grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <Eyebrow>Mission &amp; Vision</Eyebrow>
+          <RevealHeading text="I Handle The Complexity, So Projects Ship On Time." className="mt-5" />
+          <div className="mt-10 flex border-b border-black/10">
+            {TABS.map((tab, k) => (
+              <button key={tab.k} onClick={() => setT(k)} className={`relative flex-1 pb-4 font-display font-semibold text-sm md:text-base transition-colors ${t === k ? 'text-head' : 'text-mute hover:text-forest'}`}>
+                {tab.k}
+                {t === k && <motion.span layoutId="tabline" className="absolute left-0 right-0 -bottom-px h-0.5 bg-forest" />}
+              </button>
+            ))}
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.div key={t} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-7">
+              <p className="leading-8">{TABS[t].p}</p>
+              <div className="grid sm:grid-cols-2 gap-3 mt-6">
+                {TABS[t].list.map((l) => <span key={l} className="flex items-center gap-2.5 font-display font-semibold text-head text-[15px]"><i className="fas fa-check text-forest"></i>{l}</span>)}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+          <button onClick={() => scrollTo('contact')} className="mt-10 px-8 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">Let's Talk</button>
+        </div>
+        <div className="relative">
+          <div className="ml-auto w-[80%] aspect-[4/5] bg-forest grid-pattern relative overflow-hidden">
+            <img src="/aritra-photo.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale" />
+            <div className="absolute bottom-8 right-8 text-right">
+              <p className="text-lime font-display font-bold text-sm tracking-widest">AVAILABLE</p>
+              <p className="font-display font-bold text-4xl" style={{ color: '#fff' }}>Jan – Dec<br />2027</p>
+            </div>
+          </div>
+          <div className="absolute left-0 bottom-10 bg-lime p-7 w-[60%] min-w-[240px] shadow-2xl">
+            {[{ v: 89, label: 'B.Tech CGPA', show: <Counter to={8.93} decimals={2} /> }, { v: 88, label: 'Months in industry', show: <Counter to={35} /> }].map((s, k) => (
+              <div key={k} className={`flex items-center gap-5 ${k ? 'pt-5 mt-5 border-t border-ink/15' : ''}`}>
+                <Ring pct={s.v} size={64} stroke={5} track="rgba(16,41,48,0.15)" color="#102930"><i className="fas fa-arrow-up-right text-ink text-sm"></i></Ring>
+                <div><p className="font-display font-bold text-3xl text-ink">{s.show}</p><p className="font-display font-semibold text-ink text-sm">{s.label}</p></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============ GROWTH STATS BAND ============
+function Growth() {
+  const stats = [
+    { pct: 76, big: <Counter to={13} suffix="+" />, t: 'Vendors & EPCs', d: 'Negotiated pricing, POs and lead times' },
+    { pct: 72, big: <Counter to={18} />, t: 'Member team', d: 'Led through BOF-1 & 2 commissioning' },
+    { pct: 20, big: <Counter to={20} suffix="%+" />, t: 'Fewer errors', d: 'From Excel & Power BI trackers' },
+    { pct: 75, big: <Counter to={9} suffix="+" />, t: 'Months recovered', d: 'On a year-delayed RMHS package' },
+  ];
+  return (
+    <section className="relative bg-ink overflow-hidden">
+      <div className="absolute inset-0 grid-pattern"></div>
+      <img src="/aritra-photo.jpg" alt="" className="absolute right-0 top-0 h-full w-1/3 object-cover opacity-10 grayscale hidden lg:block" />
+      <div className="relative max-w-[1344px] mx-auto px-6 lg:px-16 py-24">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div><Eyebrow>Impact In Numbers</Eyebrow><RevealHeading text="Building Results On The Shop Floor" light className="mt-5" /></div>
+          <button onClick={() => scrollTo('experience')} className="self-start lg:self-auto px-8 py-4 bg-lime text-ink font-display font-semibold text-sm hover:bg-white transition-colors">See The Work</button>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mt-16">
+          {stats.map((s) => (
+            <motion.div key={s.t} whileHover={{ y: -6 }} className="flex items-center gap-5">
+              <Ring pct={s.pct}><span className="font-display font-bold text-white text-lg">{s.big}</span></Ring>
+              <div><h4 className="font-display font-bold text-lg" style={{ color: '#fff' }}>{s.t}</h4><p className="text-white/60 text-sm leading-6 mt-1">{s.d}</p></div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============ HOW IT WORKS → JOURNEY ============
+const JOURNEY = [
+  { n: '01', t: 'Engineering', s: 'IIEST Shibpur · 2019–23', d: 'B.Tech Mechanical, CGPA 8.93. Coursework in project & operations management, data science and industrial engineering. Design internship at Primetals Technologies.' },
+  { n: '02', t: 'Industry', s: 'Jindal Stainless · 2023–26', d: 'Associate Manager, Operations. RMHS package execution on a €125M BOF expansion, then raw-material planning for stainless steel production.' },
+  { n: '03', t: 'Management', s: 'MDI Gurgaon · 2026–28', d: 'PGDM in International Business, the dual-degree partner programme that sends me to emlyon for 2027.' },
+  { n: '04', t: 'Europe', s: 'emlyon business school · 2027', d: 'Master in Management, specialising in Business Analytics & Consulting. Looking for an internship in France & Europe.' },
+];
+
+function Journey() {
+  const [a, setA] = useState(0);
+  return (
+    <section className="relative py-24 lg:py-32 px-6 lg:px-16 bg-paper overflow-hidden">
+      <svg className="absolute -left-24 bottom-0 opacity-40" width="320" height="320"><circle cx="160" cy="160" r="150" stroke="#1a4137" strokeOpacity=".15" fill="none" /><circle cx="160" cy="160" r="110" stroke="#1a4137" strokeOpacity=".15" fill="none" /></svg>
+      <div className="relative max-w-[1344px] mx-auto text-center">
+        <Eyebrow>How I Got Here</Eyebrow>
+        <RevealHeading text="Learn, Build, Lead & Grow Across Two Continents." className="mt-5 max-w-3xl mx-auto" />
+        <div className="mt-16 bg-white border border-black/5 grid md:grid-cols-2 lg:grid-cols-4 text-left">
+          {JOURNEY.map((j, k) => (
+            <button key={j.n} onClick={() => setA(k)} onMouseEnter={() => setA(k)} className={`group p-9 text-left border-black/5 ${k ? 'lg:border-l' : ''} ${k % 2 ? 'md:border-l' : ''} border-t md:border-t-0 transition-colors ${a === k ? 'bg-mint' : 'hover:bg-mint/60'}`}>
+              <span className={`font-display font-bold text-6xl outline-num ${a === k ? 'active' : ''}`}>{j.n}</span>
+              <h4 className="font-display font-bold text-xl mt-5">{j.t}</h4>
+              <p className="text-forest font-semibold text-sm mt-1">{j.s}</p>
+              <AnimatePresence initial={false}>
+                {a === k && <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="text-sm leading-6 mt-3 overflow-hidden">{j.d}</motion.p>}
+              </AnimatePresence>
+            </button>
+          ))}
+        </div>
+        <p className="mt-12 font-display font-semibold text-head text-lg">Hiring for a 2027 internship in France? <button onClick={() => scrollTo('contact')} className="text-forest underline underline-offset-4 decoration-lime decoration-2 hover:text-ink">Let's connect</button></p>
+      </div>
+    </section>
+  );
+}
+
+// ============ EXPERIENCE (ACCORDION) ============
+const ROLES = [
+  { t: 'Project Execution: RMHS Package, BOF Expansion', pts: ['Led the full RMHS package from planning to commissioning in a €125.19M BOF expansion', 'Negotiated pricing & purchase orders with 13+ vendors & EPC contractors on cost & lead times', 'Led an 18-member team in site commissioning of BOF-1 & 2, Ladle addition & Twin Ladle Furnace', 'Overcame a year-long delay on the RMHS package, recovering 9+ months ahead of other teams', 'Reconciled €45k–€72k monthly vendor billing in SAP & Excel, ensuring audit compliance', 'Engineered Excel & Power BI trackers for package progress & materials, cutting errors 20%+'] },
+  { t: 'Planning & Optimisation: Raw Material Planning', pts: ['Formulated rolling 3-month production plans, setting SS grade mix for quality & raw material cost', 'Forecasted raw material needs 3 months ahead, driving procurement & supply chain planning', 'Prioritised import & domestic sourcing as supply shifted, flagging shortages early', 'Presented bi-monthly production reports to senior leadership with month-end reconciliations', 'Plant liaison with the overseas software team on a cost-optimisation tool rollout'] },
+  { t: 'Design Internship: Primetals Technologies (2022)', pts: ['Designed & validated a hydraulic ladle tilter in SolidWorks', 'Worked with the design team on load and safety checks for steel-plant equipment'] },
+];
+
 function Experience() {
-  const experiences = [
-    {
-      company: 'Jindal Stainless',
-      role: 'Associate Manager, Operations',
-      location: 'Jajpur, Odisha',
-      period: 'July 2023 — Present',
-      duration: '3+ years',
-      points: [
-        'Coordinated with 15+ vendors and contractors for procurement, supply, and timely equipment delivery on a ₹1,400+ crore BOF expansion project',
-        'Led an 18-member team of technicians and junior engineers for equipment installation, erection, and commissioning activities',
-        'Planned and monitored project schedules while coordinating with engineering, procurement, and site teams to ensure timely execution of critical project milestones',
-        'Owned end-to-end monthly billing and procurement worth ₹1–2 crore, ensuring accuracy and audit compliance',
-        'Revived a Raw Material Handling System (RMHS) package delayed by over a year through close coordination with EPC contractors and cross-functional teams',
-        'Built a material-tracking system spanning specification mapping, code generation, and inventory checks, streamlining procurement workflows',
-      ],
-      highlight: true,
-    },
-    {
-      company: 'Primetals Technologies',
-      role: 'Summer Intern',
-      location: 'India',
-      period: 'June 2022 — July 2022',
-      duration: '2 months',
-      points: [
-        'Design and analysis of a Hydraulic Ladle Tilter',
-        'Performed design validation ensuring structural integrity and operational feasibility',
-      ],
-      highlight: false,
-    },
-    {
-      company: 'Jadavpur University, Kolkata',
-      role: 'Undergraduate Research Intern',
-      location: 'Kolkata, West Bengal',
-      period: 'June 2021 — December 2021',
-      duration: '7 months',
-      points: [
-        'Research internship on the influence of ambient conditions on droplet transport and evaporation in a closed indoor environment',
-        'Analysed effects of temperature, humidity, airflow, and viral load on droplet dispersion',
-      ],
-      highlight: false,
-    },
-  ];
-
-  const memberships = [
-    {
-      org: 'ASME (American Society of Mechanical Engineers)',
-      role: 'Student Member',
-      period: 'August 2019 — August 2023',
-      points: [
-        'Team member of Steering and Suspension department for ASME HPVC Competition (Team RAGNAR)',
-        'Core team member for the HPVC Innovation competition',
-      ],
-    },
-    {
-      org: 'ISHRAE',
-      role: 'Student Member',
-      period: 'May 2021 — June 2023',
-      points: [
-        'Led the revival of ISHRAE student chapter and increased member participation by 30%',
-        'Served as Co-Secretary; led the weekly newsletter initiative of the ASME college society',
-      ],
-    },
-  ];
-
+  const [o, setO] = useState(0);
   return (
-    <Section id="experience" className="bg-gray-900">
-      <SectionTitle eyebrow="Experience" title="Where I've Worked" description="From shop floor execution to strategic project management — three years of building things that matter." />
-
-      <div className="relative">
-        {/* Timeline line */}
-        <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-orange-500 via-amber-500 to-transparent hidden md:block"></div>
-
-        <div className="space-y-8">
-          {experiences.map((exp, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{ y: -4, rotate: i % 2 === 0 ? -0.5 : 0.5 }}
-              className="relative md:pl-20"
-            >
-              <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-4 hidden md:block ${exp.highlight ? 'bg-orange-500 border-gray-900' : 'bg-gray-600 border-gray-900'}`}></div>
-              <div className={`border rounded-2xl p-8 transition-colors ${exp.highlight ? 'bg-gradient-to-r from-orange-500/5 to-transparent border-orange-500/20' : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600'}`}>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">{exp.company}</h3>
-                    <p className={`font-medium ${exp.highlight ? 'text-orange-400' : 'text-gray-300'}`}>{exp.role}</p>
-                  </div>
-                  <div className="flex items-center gap-4 text-gray-400 text-sm">
-                    <span className="flex items-center gap-1.5">
-                      <i className="fas fa-calendar text-xs"></i>
-                      {exp.period}
-                    </span>
-                    <span className="px-2.5 py-1 bg-gray-800 rounded-full text-xs">{exp.duration}</span>
-                  </div>
-                </div>
-                <p className="text-gray-500 text-sm mb-5">
-                  <i className="fas fa-location-dot mr-2"></i>{exp.location}
-                </p>
-                <ul className="space-y-3">
-                  {exp.points.map((point, j) => (
-                    <li key={j} className="flex items-start gap-3 text-gray-300 text-sm leading-relaxed">
-                      <span className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${exp.highlight ? 'bg-orange-400' : 'bg-gray-500'}`}></span>
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Memberships */}
-      <div className="mt-16">
-        <h3 className="text-2xl font-bold text-white mb-8">Memberships & Leadership</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          {memberships.map((mem, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-6"
-            >
-              <h4 className="text-white font-bold text-lg">{mem.org}</h4>
-              <p className="text-orange-400 text-sm font-medium">{mem.role}</p>
-              <p className="text-gray-500 text-xs mt-1">{mem.period}</p>
-              <ul className="mt-4 space-y-2">
-                {mem.points.map((point, j) => (
-                  <li key={j} className="flex items-start gap-2 text-gray-400 text-sm">
-                    <span className="w-1 h-1 bg-orange-400 rounded-full mt-2 flex-shrink-0"></span>
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </Section>
-  );
-}
-
-// ============ EDUCATION ============
-function Education() {
-  const educationData = [
-    {
-      degree: 'Master in Management (MiM)',
-      institute: 'emlyon business school, France',
-      score: "4 Jan 2027 — 20 Dec 2027",
-      icon: 'fa-earth-europe',
-      highlight: true,
-      badge: 'Primary',
-    },
-    {
-      degree: 'PGDM — International Business',
-      institute: 'Management Development Institute (MDI), Gurgaon',
-      score: "2026 — 2028",
-      icon: 'fa-building-columns',
-      highlight: false,
-      badge: 'Dual-Degree Partner',
-    },
-    {
-      degree: 'B.Tech — Mechanical Engineering',
-      institute: 'IIEST, Shibpur',
-      score: '8.93 / 10 CGPA · 2019 — 2023',
-      icon: 'fa-graduation-cap',
-      highlight: false,
-    },
-    {
-      degree: 'XII — CBSE',
-      institute: 'South Point High School, Kolkata',
-      score: '90.40% · 2012 — 2018',
-      icon: 'fa-school',
-      highlight: false,
-    },
-    {
-      degree: 'X — WBBSE',
-      institute: 'South Point School, Kolkata',
-      score: '89.14% · 2002 — 2016',
-      icon: 'fa-school',
-      highlight: false,
-    },
-  ];
-
-  return (
-    <Section id="education" className="bg-gray-950">
-      <SectionTitle eyebrow="Education" title="Academic Journey" description="From Kolkata to France — a journey of continuous learning." />
-      <div className="space-y-4">
-        {educationData.map((edu, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className={`relative p-6 rounded-2xl border transition-all hover:-translate-y-0.5 ${edu.highlight
-              ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/30'
-              : 'bg-gray-900/50 border-gray-800/50 hover:border-gray-700'
-              }`}
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.highlight ? 'bg-orange-500/20' : 'bg-gray-800'
-                  }`}>
-                  <i className={`fas ${edu.icon} ${edu.highlight ? 'text-orange-400' : 'text-gray-400'}`}></i>
-                </div>
-                <div>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h3 className="text-white font-bold text-lg">{edu.degree}</h3>
-                    {edu.badge && (
-                      <span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs font-medium rounded-full">{edu.badge}</span>
-                    )}
-                  </div>
-                  <p className="text-gray-400 text-sm mt-1">{edu.institute}</p>
-                </div>
-              </div>
-              <div className="md:text-right">
-                <div className={`font-medium text-sm ${edu.highlight ? 'text-orange-400' : 'text-gray-300'}`}>{edu.score}</div>
-              </div>
+    <section id="experience" className="bg-mint">
+      <div className="grid lg:grid-cols-2">
+        <div className="relative bg-forest min-h-[420px] grid-pattern overflow-hidden">
+          <img src="/aritra-photo.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 grayscale" />
+          <div className="absolute top-10 left-8 lg:left-16 right-8">
+            <p className="text-lime font-display font-bold text-sm tracking-widest">JINDAL STAINLESS LIMITED</p>
+            <p className="font-display font-bold text-3xl lg:text-4xl mt-2" style={{ color: '#fff' }}>India's largest stainless steel manufacturer</p>
+            <p className="text-white/70 mt-2">Associate Manager, Operations · Jul 2023 – Jun 2026 (35 months)</p>
+          </div>
+          {/* floating chart card like the template */}
+          <motion.div whileHover={{ y: -8 }} className="absolute right-8 bottom-10 bg-white p-5 shadow-2xl w-64">
+            <div className="flex justify-between items-start"><div><p className="text-xs text-mute">Tracking errors</p><p className="font-display font-bold text-2xl text-head">−20%+</p></div><span className="text-xs bg-lime px-2 py-0.5 font-bold text-ink">Power BI</span></div>
+            <div className="flex items-end gap-2 h-20 mt-3">
+              {[80, 72, 66, 58, 52, 46, 40].map((h, k) => <motion.span key={k} initial={{ height: 0 }} whileInView={{ height: `${h}%` }} viewport={{ once: true }} transition={{ delay: k * 0.08 }} className={`flex-1 ${k === 6 ? 'bg-lime' : 'bg-forest'}`} />)}
             </div>
           </motion.div>
-        ))}
+        </div>
+        <div className="px-6 lg:px-16 py-20">
+          <Eyebrow>Experience</Eyebrow>
+          <RevealHeading text="Driving Results Through Execution & Planning." className="mt-5" />
+          <div className="mt-10 space-y-3">
+            {ROLES.map((r, k) => (
+              <div key={r.t} className={`transition-colors ${o === k ? 'bg-white shadow-lg' : ''}`}>
+                <button onClick={() => setO(o === k ? -1 : k)} className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-display font-bold text-head">
+                  {r.t}<i className={`fas fa-chevron-${o === k ? 'down' : 'right'} text-sm text-forest`}></i>
+                </button>
+                <AnimatePresence initial={false}>
+                  {o === k && (
+                    <motion.ul initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden px-6">
+                      {r.pts.map((p) => <li key={p} className="flex gap-3 text-[15px] leading-7 pb-2"><i className="fas fa-circle text-[6px] text-forest mt-3"></i>{p}</li>)}
+                      <li className="pb-5"></li>
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </Section>
+    </section>
   );
 }
 
-// ============ ACHIEVEMENTS ============
-function Achievements() {
-  const achievements = [
-    {
-      title: 'ASME HPVC — Global Rank 9th',
-      description: 'Achieved Global Rank 9th and National Rank 3rd in ASME HPVC 2020 (E-FEST). Designed a Human Powered Vehicle from scratch as part of Team RAGNAR.',
-      year: '2020',
-      icon: 'fa-globe',
-      color: 'from-orange-500 to-amber-500',
-    },
-    {
-      title: 'L&T TECHgium — National Finalist',
-      description: 'Served as Team Lead, reaching the national finals of L&T TECHgium contest (5th Edition). Led the design of an EGR-integrated Catalysed DPF for modern vehicles.',
-      year: '2022',
-      icon: 'fa-medal',
-      color: 'from-amber-500 to-orange-500',
-    },
-    {
-      title: 'Research Publication — ISHRAE Journal',
-      description: "Co-authored paper titled 'Thermo-Economic Analysis of Cascade Refrigeration System' published in ISHRAE Journal (2023) & presented at INCOM 2024.",
-      year: '2023',
-      icon: 'fa-file-lines',
-      color: 'from-blue-500 to-orange-300',
-    },
-    {
-      title: 'Springer Nature Publication',
-      description: 'Published as a Springer Nature chapter in "Advances in Energy & Sustainability" — evaluating optimal low-GWP refrigerant combinations for max efficiency.',
-      year: '2024',
-      icon: 'fa-book',
-      color: 'from-violet-500 to-purple-500',
-    },
-    {
-      title: 'Sr. Management Recognition',
-      description: 'Recognised by senior management at Jindal Stainless for notable contribution to efficient project planning & execution of the ₹1,400+ Cr BOF Expansion.',
-      year: '2025',
-      icon: 'fa-star',
-      color: 'from-pink-500 to-rose-500',
-    },
-    {
-      title: 'Revived Delayed RMHS Package',
-      description: 'Single-handedly revived a Raw Material Handling System package delayed by over a year, propelling it ahead of other cross-functional teams.',
-      year: '2025',
-      icon: 'fa-rotate',
-      color: 'from-orange-300 to-blue-500',
-    },
-  ];
+// ============ PROJECTS (CASE STUDY) ============
+const PROJECTS = [
+  { tag: 'Operations', t: 'RMHS Material Tracking System', ic: 'fa-boxes-stacked', d: 'Systematised on-site tracking of spares and material codes with live inventory status during the BOF expansion, replacing scattered spreadsheets.', res: 'Live inventory visibility on site' },
+  { tag: 'Analytics', t: 'Package Progress Dashboards', ic: 'fa-chart-column', d: 'Excel and Power BI trackers for package progress and site materials used in leadership reviews.', res: 'Tracking errors cut by 20%+' },
+  { tag: 'Project Recovery', t: 'Turning Around A Delayed Package', ic: 'fa-rotate', d: 'Took over an RMHS package running a year late and pulled it back through tighter vendor follow-up and sequencing.', res: '9+ months recovered vs other teams' },
+  { tag: 'Marketing', t: 'Brokerage Marketing Simulation', ic: 'fa-bullseye', d: 'Seven-round simulation: analysed customer segments, pricing and discounts to grow retention and acquisition.', res: 'Retention & acquisition gains' },
+  { tag: 'Design', t: 'Hydraulic Ladle Tilter', ic: 'fa-gears', d: 'Design internship at Primetals Technologies: designed and validated a hydraulic ladle tilter in SolidWorks.', res: 'Validated design, 2022' },
+  { tag: 'Research', t: 'Cascade Refrigeration Systems', ic: 'fa-snowflake', d: 'Co-authored a peer-reviewed chapter published by Springer Nature and in the ISHRAE Journal.', res: 'Published research' },
+];
 
-  return (
-    <Section id="achievements" className="bg-gray-900">
-      <SectionTitle eyebrow="Achievements" title="Milestones & Recognition" description="Competitive achievements, publications, and professional recognition." />
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {achievements.map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            whileHover={{ y: -6, rotate: i % 2 === 0 ? -0.6 : 0.6 }}
-            className="group relative bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6 hover:border-gray-600 transition-colors"
-          >
-            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-              <i className={`fas ${item.icon} text-white`}></i>
-            </div>
-            <div className="text-gray-500 text-xs font-medium mb-2">{item.year}</div>
-            <h3 className="text-white font-bold text-lg mb-3">{item.title}</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
-          </motion.div>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-// ============ PROJECTS ============
 function Projects() {
-  const { filter, setFilter } = useContext(ProjectFilterContext);
-  const projects = [
-    {
-      title: 'Hydraulic Ladle Tilter Design',
-      type: 'Primetals Technologies · Internship',
-      category: 'Project Management',
-      description: 'Designed complete Hydraulic Ladle Tilter assembly from scratch using SolidWorks. Performed design validation ensuring structural integrity and operational feasibility.',
-      tags: ['SolidWorks', 'Design Validation', 'Mechanical Design'],
-      icon: 'fa-gears',
-    },
-    {
-      title: 'Respiratory Droplet Dispersion Study',
-      type: 'Jadavpur University · Research Intern',
-      category: 'Analytics',
-      description: 'Researched influence of ambient conditions on droplet transport and evaporation in a closed indoor environment. Analysed effects of temperature, humidity, airflow, & viral load.',
-      tags: ['Research', 'Data Analysis', 'Fluid Dynamics'],
-      icon: 'fa-microscope',
-    },
-    {
-      title: 'Cascade Refrigeration System',
-      type: 'Academic Project · Research',
-      category: 'Strategy',
-      description: 'Developed a thermodynamic model for a Cascade Refrigeration System with low GWP refrigerants. Analysed system performance utilizing thermodynamic & thermo-economic parameters.',
-      tags: ['Thermodynamics', 'Sustainability', 'Modelling'],
-      icon: 'fa-temperature-low',
-    },
-    {
-      title: 'RMHS Material Tracking System',
-      type: 'Jindal Stainless · Live Project',
-      category: 'Operations',
-      description: 'Created a robust material-tracking system spanning spec mapping, code generation & inventory checks for the ₹1,400+ Cr BOF project. Streamlined procurement workflows.',
-      tags: ['SAP', 'Process Design', 'Inventory'],
-      icon: 'fa-database',
-    },
-  ];
-
-  const filtered = filter ? projects.filter((p) => p.category === filter) : projects;
-  const showEmptyNote = filter && filtered.length === 0;
-
+  const [act, setAct] = useState(1);
+  const [open, setOpen] = useState<number | null>(null);
+  const [filter, setFilter] = useState('All');
+  const tags = ['All', ...Array.from(new Set(PROJECTS.map((p) => p.tag)))];
+  const list = PROJECTS.map((p, k) => ({ ...p, k })).filter((p) => filter === 'All' || p.tag === filter);
+  const sel = open !== null ? PROJECTS[open] : null;
   return (
-    <Section id="projects" className="bg-gray-950">
-      <SectionTitle eyebrow="Projects" title="Work That Matters" description="From academic research to live industrial projects — building solutions that impact." />
-
-      {filter && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-8 -mt-6"
-        >
-          <span className="text-sm text-gray-400">Filtered by</span>
-          <span className="px-3 py-1 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-sm font-medium rounded-full">{filter}</span>
-          <button
-            onClick={() => setFilter(null)}
-            className="text-sm text-gray-500 hover:text-orange-400 transition-colors underline underline-offset-2"
-          >
-            Clear filter
-          </button>
-        </motion.div>
-      )}
-
-      {showEmptyNote && (
-        <p className="text-gray-500 text-sm mb-8 -mt-6">
-          No project tagged "{filter}" yet — here's everything else in the meantime.
-        </p>
-      )}
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {(showEmptyNote ? projects : filtered).map((project, i) => (
-          <motion.div
-            key={project.title}
-            layout
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            whileHover={{ y: -6, rotate: i % 2 === 0 ? -0.6 : 0.6, scale: 1.015 }}
-            className="group bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8 hover:border-orange-500/30 transition-colors"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
-                <i className={`fas ${project.icon} text-orange-400 text-lg`}></i>
-              </div>
-              <span className="text-xs text-gray-500 bg-gray-800 px-3 py-1 rounded-full">{project.type}</span>
-            </div>
-            <h3 className="text-white font-bold text-xl mb-3 group-hover:text-orange-400 transition-colors">{project.title}</h3>
-            <p className="text-gray-400 text-sm leading-relaxed mb-5">{project.description}</p>
-            <div className="flex flex-wrap gap-2">
-              {project.tags.map((tag, j) => (
-                <span key={j} className="px-2.5 py-1 bg-gray-800 text-gray-400 text-xs rounded-full">{tag}</span>
-              ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-// ============ CERTIFICATION FLIP CARD ============
-function CertFlipCard({ cert, delay }: { cert: { name: string; issuer: string; icon: string; color: string; desc: string }; delay: number }) {
-  const [flipped, setFlipped] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4, delay }}
-      className="relative h-28 cursor-pointer"
-      style={{ perspective: '1000px' }}
-      onClick={() => setFlipped((f) => !f)}
-    >
-      <motion.div
-        className="relative w-full h-full"
-        style={{ transformStyle: 'preserve-3d' }}
-        animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Front */}
-        <div
-          className="absolute inset-0 flex items-center gap-4 p-5 bg-gray-800/50 border border-gray-700/50 rounded-2xl hover:border-orange-500/30 transition-colors"
-          style={{ backfaceVisibility: 'hidden' }}
-        >
-          <div className="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i className={`${cert.icon} ${cert.color} text-lg`}></i>
-          </div>
-          <div className="min-w-0">
-            <div className="text-white text-sm font-medium leading-snug">{cert.name}</div>
-            <div className="text-gray-500 text-xs mt-1 flex items-center gap-1">
-              <i className="fas fa-rotate text-[10px]"></i> flip for details
-            </div>
+    <section id="projects" className="relative py-24 lg:py-32 px-6 lg:px-16 bg-white">
+      <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-paper"></div>
+      <div className="relative max-w-[1344px] mx-auto">
+        <div className="text-center">
+          <Eyebrow>Case Studies</Eyebrow>
+          <RevealHeading text="Showcasing Projects & Results From Real Work." className="mt-5 max-w-3xl mx-auto" />
+          <div className="flex flex-wrap justify-center gap-2 mt-8">
+            {tags.map((t) => <button key={t} onClick={() => setFilter(t)} className={`px-4 py-2 text-sm font-display font-semibold rounded-full border transition-colors ${filter === t ? 'bg-forest text-white border-forest' : 'border-black/10 text-ink hover:border-forest'}`}>{t}</button>)}
           </div>
         </div>
-        {/* Back */}
-        <div
-          className="absolute inset-0 flex flex-col justify-center p-5 bg-orange-500/10 border border-orange-500/30 rounded-2xl"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-        >
-          <div className="text-orange-400 text-xs font-semibold uppercase tracking-wider mb-1">{cert.issuer}</div>
-          <p className="text-gray-300 text-xs leading-relaxed">{cert.desc}</p>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// ============ SKILLS & INTERESTS ============
-function SkillsAndInterests() {
-  const topSkills = [
-    { name: 'Strategy', icon: 'fa-chess' },
-    { name: 'Operations Management', icon: 'fa-gears' },
-    { name: 'Root Cause Analysis', icon: 'fa-magnifying-glass-chart' },
-    { name: 'Project Management', icon: 'fa-diagram-project' },
-    { name: 'Stakeholder Management', icon: 'fa-people-group' },
-    { name: 'Procurement & Billing', icon: 'fa-file-invoice' },
-    { name: 'SAP & ERP Systems', icon: 'fa-database' },
-    { name: 'Team Leadership', icon: 'fa-users' },
-    { name: 'SolidWorks / CAD', icon: 'fa-compass-drafting' },
-    { name: 'Python & Data Structures', icon: 'fa-code' },
-    { name: 'Excel & Data Analysis', icon: 'fa-table' },
-    { name: 'Vendor Coordination', icon: 'fa-handshake' },
-  ];
-
-  const languages = [
-    { name: 'English', level: 'Native / Bilingual', flag: '🇬🇧' },
-    { name: 'Hindi', level: 'Native / Bilingual', flag: '🇮🇳' },
-    { name: 'Bengali', level: 'Native / Bilingual', flag: '🇧🇩' },
-    { name: 'French', level: 'Elementary', flag: '🇫🇷' },
-  ];
-
-  const certifications = [
-    { name: 'BCG — Introduction to Strategy Consulting', issuer: 'Boston Consulting Group', icon: 'fa-chess-knight', color: 'text-orange-400', desc: 'Core strategy-consulting frameworks: market sizing, profitability diagnosis, and structured problem-solving.' },
-    { name: 'McKinsey Forward Program', issuer: 'McKinsey & Company', icon: 'fa-compass', color: 'text-amber-400', desc: 'Professional and leadership-skills program covering problem-solving, communication, and adaptability.' },
-    { name: 'Siemens — Project Management', issuer: 'Siemens', icon: 'fa-diagram-project', color: 'text-orange-300', desc: 'Project-management fundamentals applied to industrial and engineering execution.' },
-    { name: 'TATA — ESG', issuer: 'Tata Group', icon: 'fa-leaf', color: 'text-green-400', desc: 'Environmental, Social & Governance fundamentals and corporate sustainability reporting.' },
-    { name: 'Python: From Basics to Data Structure', issuer: 'Self-paced course', icon: 'fab fa-python', color: 'text-blue-400', desc: 'Python fundamentals through core data structures — lists, dicts, stacks, and queues.' },
-    { name: 'Automotive Engineering — Supercharging', issuer: 'Self-paced course', icon: 'fa-car', color: 'text-red-400', desc: 'Supercharging systems in automotive engines — principles, types, and performance trade-offs.' },
-  ];
-
-  const interests = [
-    { icon: 'fa-utensils', name: 'Cooking', desc: 'Experimenting with diverse recipes & cuisines as a creative pursuit' },
-    { icon: 'fa-table-tennis-paddle-ball', name: 'Badminton', desc: 'Enjoying fast-paced rallies & competitive matches' },
-    { icon: 'fa-gamepad', name: 'Gaming', desc: 'Strategy & story-driven PC game enthusiast' },
-  ];
-
-  return (
-    <Section id="skills" className="bg-gray-900">
-      <SectionTitle eyebrow="Skills & More" title="What I Bring to the Table" />
-
-      <div className="grid lg:grid-cols-3 gap-10">
-        {/* Skills Grid */}
-        <div className="lg:col-span-2">
-          <h3 className="text-white font-bold text-xl mb-6">Core Skills</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {topSkills.map((skill, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: i * 0.03 }}
-                className="flex items-center gap-3 p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-orange-500/30 transition-all"
-              >
-                <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <i className={`fas ${skill.icon} text-orange-400 text-xs`}></i>
+        <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+          <AnimatePresence>
+            {list.map((p) => (
+              <motion.button layout key={p.t} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                onMouseEnter={() => setAct(p.k)} onClick={() => setOpen(p.k)}
+                className={`group relative h-[360px] text-left overflow-hidden rounded-xl ${act === p.k ? 'bg-ink' : 'bg-forest'}`}>
+                <div className="absolute inset-0 grid-pattern"></div>
+                <i className={`fas ${p.ic} absolute right-6 top-6 text-[120px] text-white/[0.07] group-hover:text-lime/20 transition-colors`}></i>
+                <span className={`absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white text-ink flex items-center justify-center transition-all ${act === p.k ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}><i className="fas fa-arrow-right"></i></span>
+                <div className={`absolute left-5 right-5 bottom-5 p-6 rounded-lg transition-colors ${act === p.k ? 'bg-forest' : 'bg-white'}`}>
+                  <p className={`text-xs font-semibold ${act === p.k ? 'text-lime' : 'text-forest'}`}>{p.tag}</p>
+                  <h4 className="font-display font-bold text-xl mt-1" style={act === p.k ? { color: '#fff' } : undefined}>{p.t}</h4>
                 </div>
-                <span className="text-gray-300 text-sm font-medium">{skill.name}</span>
-              </motion.div>
+              </motion.button>
             ))}
-          </div>
-
-          {/* Certifications */}
-          <h3 className="text-white font-bold text-xl mt-10 mb-6">Certifications</h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            {certifications.map((cert, i) => (
-              <CertFlipCard key={i} cert={cert} delay={i * 0.1} />
-            ))}
-          </div>
-          <p className="text-gray-600 text-xs mt-3">Tap a certification to flip it over.</p>
-        </div>
-
-        {/* Languages & Interests */}
-        <div className="space-y-10">
-          <div>
-            <h3 className="text-white font-bold text-xl mb-6">Languages</h3>
-            <div className="space-y-3">
-              {languages.map((lang, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.1 }}
-                  className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{lang.flag}</span>
-                    <span className="text-white font-medium text-sm">{lang.name}</span>
-                  </div>
-                  <span className="text-gray-400 text-xs">{lang.level}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-white font-bold text-xl mb-6">Beyond Work</h3>
-            <div className="space-y-3">
-              {interests.map((interest, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.1 }}
-                  className="flex items-center gap-4 p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-orange-500/30 transition-all"
-                >
-                  <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className={`fas ${interest.icon} text-orange-400`}></i>
-                  </div>
-                  <div>
-                    <div className="text-white font-medium text-sm">{interest.name}</div>
-                    <div className="text-gray-500 text-xs">{interest.desc}</div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
+          </AnimatePresence>
+        </motion.div>
       </div>
-    </Section>
+      <Modal open={!!sel} onClose={() => setOpen(null)}>
+        {sel && (
+          <div>
+            <div className="bg-forest grid-pattern p-8 pr-16"><p className="text-lime text-sm font-semibold">{sel.tag}</p><h3 className="font-display font-bold text-3xl mt-1" style={{ color: '#fff' }}>{sel.t}</h3></div>
+            <div className="p-8"><p className="leading-8">{sel.d}</p><p className="mt-5 inline-flex items-center gap-2 bg-lime px-4 py-2 font-display font-bold text-ink"><i className="fas fa-trophy"></i>{sel.res}</p></div>
+          </div>
+        )}
+      </Modal>
+    </section>
   );
 }
 
-// ============ CONTACT ============
-function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+// ============ CREDENTIALS (TEAM CARDS) ============
+const CERTS = [
+  { t: 'Introduction to Strategy Consulting', by: 'BCG', yr: '2026', ic: 'fa-chess-knight' },
+  { t: 'Forward Program', by: 'McKinsey & Company', yr: '2026', ic: 'fa-forward' },
+  { t: 'Project Manager', by: 'Siemens', yr: '2026', ic: 'fa-industry' },
+  { t: 'ESG Fundamentals', by: 'TATA', yr: '2026', ic: 'fa-leaf' },
+  { t: 'Python: Basics to Data Structures', by: 'Online certification', yr: '2021', ic: 'fa-code' },
+  { t: 'Global Management Challenge India', by: 'Top 99 of 1,344 teams', yr: '2026', ic: 'fa-trophy' },
+  { t: 'ASME HPVC 2020', by: 'Global Rank 9 · National Rank 3', yr: '2020', ic: 'fa-bicycle' },
+  { t: 'L&T TECHgium 5th Edition', by: 'National Finalist', yr: '2021', ic: 'fa-medal' },
+];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+function Credentials() {
+  const [open, setOpen] = useState<number | null>(null);
+  const [view, setView] = useState<number | null>(null);
+  const sel = view !== null ? CERTS[view] : null;
+  return (
+    <section id="credentials" className="py-24 lg:py-32 px-6 lg:px-16 bg-white">
+      <div className="max-w-[1344px] mx-auto">
+        <div className="text-center">
+          <Eyebrow>Credentials</Eyebrow>
+          <RevealHeading text="Certifications & Awards Behind The Work." className="mt-5 max-w-3xl mx-auto" />
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
+          {CERTS.map((c, k) => {
+            const on = open === k;
+            return (
+              <motion.div key={c.t} whileHover={{ y: -6 }} className="rounded-xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.07)]">
+                <button onClick={() => setView(k)} className={`relative w-full aspect-[4/3] flex items-center justify-center transition-colors ${on ? 'bg-gradient-to-b from-mint to-lime/60' : 'bg-mint'}`}>
+                  <i className={`fas ${c.ic} text-6xl ${on ? 'text-ink' : 'text-forest/70'}`}></i>
+                  <span className="absolute top-3 left-3 text-[11px] font-bold bg-white px-2 py-0.5 text-forest">{c.yr}</span>
+                  <AnimatePresence>
+                    {on && (
+                      <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="absolute right-3 top-3 flex flex-col gap-2">
+                        <span onClick={(e) => { e.stopPropagation(); setView(k); }} title="View certificate" className="w-9 h-9 rounded-full bg-white text-forest flex items-center justify-center hover:bg-forest hover:text-white"><i className="fas fa-eye text-xs"></i></span>
+                        <a onClick={(e) => e.stopPropagation()} href={LINKEDIN} target="_blank" rel="noopener noreferrer" title="See on LinkedIn" className="w-9 h-9 rounded-full bg-white text-forest flex items-center justify-center hover:bg-forest hover:text-white"><i className="fab fa-linkedin-in text-xs"></i></a>
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+                <div className={`relative p-5 transition-colors ${on ? 'bg-forest' : 'bg-white'}`}>
+                  <h4 className="font-display font-bold text-[17px] leading-snug pr-10" style={on ? { color: '#fff' } : undefined}>{c.t}</h4>
+                  <p className={`text-sm mt-1 ${on ? 'text-lime' : 'text-mute'}`}>{c.by}</p>
+                  <button onClick={() => setOpen(on ? null : k)} aria-label="More" className={`absolute right-4 -top-5 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${on ? 'bg-lime text-ink' : 'bg-forest text-white'}`}><i className={`fas ${on ? 'fa-xmark' : 'fa-plus'}`}></i></button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+      <Modal open={!!sel} onClose={() => setView(null)}>
+        {sel && (
+          <div className="p-8">
+            <div className="aspect-[4/3] bg-mint rounded-xl flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-forest/20">
+              <i className={`fas ${sel.ic} text-6xl text-forest`}></i>
+              <p className="mt-4 text-sm text-mute">Certificate image coming soon</p>
+            </div>
+            <h3 className="font-display font-bold text-2xl mt-6">{sel.t}</h3>
+            <p className="text-forest font-semibold">{sel.by} · {sel.yr}</p>
+          </div>
+        )}
+      </Modal>
+    </section>
+  );
+}
+
+// ============ FAQ ============
+const FAQS = [
+  { q: 'When are you available for an internship?', a: 'From January to December 2027, during my MiM year at emlyon business school. I can start in January and take a full-length internship.' },
+  { q: 'Where are you based?', a: 'In Caluire-et-Cuire, right next to Lyon. Open to roles in Lyon, Paris and elsewhere in Europe, on-site or hybrid.' },
+  { q: 'What languages do you work in?', a: 'English at C2 level and French at B1, improving every week. Also Hindi and Bengali.' },
+  { q: 'Which roles fit you best?', a: 'Operations & supply chain, project management, strategy & consulting, business development and business analytics. Pick the matching CV from the download menu.' },
+  { q: 'What tools do you use day to day?', a: 'Advanced Excel, Power BI, SAP, PowerPoint, Canva, financial modelling and basic Python.' },
+];
+
+function FAQ() {
+  const [o, setO] = useState(1);
+  return (
+    <section id="faq" className="grid lg:grid-cols-[0.8fr_1.2fr] bg-deep">
+      <div className="relative min-h-[320px] bg-forest overflow-hidden">
+        <img src="/aritra-photo.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-deep to-transparent"></div>
+      </div>
+      <div className="relative grid-pattern px-6 lg:px-16 py-20 grid xl:grid-cols-[0.9fr_1.1fr] gap-12">
+        <div>
+          <Eyebrow>FAQ's</Eyebrow>
+          <h2 className="font-display font-bold text-4xl md:text-5xl mt-5 leading-tight" style={{ color: '#fff' }}>Recruiter<br />Questions</h2>
+          <p className="text-white/70 mt-5 leading-7">Quick answers to what most recruiters ask first. Anything else, send me a message.</p>
+          <button onClick={() => scrollTo('contact')} className="mt-8 px-7 py-4 bg-white text-ink font-display font-semibold text-sm hover:bg-lime transition-colors">Ask Me Directly</button>
+        </div>
+        <div className="space-y-3">
+          {FAQS.map((f, k) => (
+            <div key={f.q} className={`border transition-colors ${o === k ? 'bg-forest border-forest' : 'bg-ink/60 border-white/10'}`}>
+              <button onClick={() => setO(o === k ? -1 : k)} className="w-full flex justify-between gap-4 items-center px-5 py-4 text-left font-display font-bold text-white text-[15px]">
+                {f.q}<i className={`fas fa-chevron-${o === k ? 'down' : 'right'} text-xs`}></i>
+              </button>
+              <AnimatePresence initial={false}>
+                {o === k && <motion.p initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden px-5 text-white/70 text-sm leading-7"><span className="block pb-5">{f.a}</span></motion.p>}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============ TESTIMONIAL → AWARDS SLIDER ============
+const AWARDS = [
+  { q: 'Cleared the national qualifiers of Global Management Challenge India 2026, ranking 1st in our group and among the top 99 of 1,344 teams.', who: 'Global Management Challenge', role: 'India 2026', ic: 'fa-trophy' },
+  { q: 'Achieved Global Rank 9 and National Rank 3 at ASME HPVC 2020, working in a cross-functional engineering design team.', who: 'ASME HPVC', role: 'Human Powered Vehicle Challenge 2020', ic: 'fa-bicycle' },
+  { q: 'Qualified as National Finalist in L&T TECHgium 5th Edition, competing against the top engineering teams across India.', who: 'L&T TECHgium', role: '5th Edition · National Finalist', ic: 'fa-medal' },
+  { q: 'Co-authored a peer-reviewed research chapter on Cascade Refrigeration Systems, published by Springer Nature and the ISHRAE Journal.', who: 'Springer Nature & ISHRAE', role: 'Published Research', ic: 'fa-book-open' },
+];
+
+function Awards() {
+  const [i, setI] = useState(0);
+  useEffect(() => { const t = setInterval(() => setI((x) => (x + 1) % AWARDS.length), 7000); return () => clearInterval(t); }, []);
+  const a = AWARDS[i];
+  return (
+    <section className="py-24 px-6 lg:px-16 bg-paper">
+      <div className="max-w-[1200px] mx-auto bg-white shadow-[0_20px_60px_rgba(0,0,0,0.05)] p-8 md:p-16 grid md:grid-cols-[260px_1fr] gap-12 items-center">
+        <div className="text-center">
+          <div className="relative w-52 h-52 mx-auto rounded-full bg-forest grid-pattern flex items-center justify-center">
+            <AnimatePresence mode="wait"><motion.i key={i} initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} className={`fas ${a.ic} text-7xl text-lime`}></motion.i></AnimatePresence>
+            <span className="absolute top-1 right-1 w-14 h-14 rounded-full bg-lime flex items-center justify-center text-ink text-2xl"><i className="fas fa-quote-right"></i></span>
+          </div>
+          <span className="inline-flex gap-1 mt-6 px-5 py-2 rounded-full border border-black/10 text-[#ffc737]">{[...Array(5)].map((_, k) => <i key={k} className="fas fa-star text-sm"></i>)}</span>
+        </div>
+        <div>
+          <AnimatePresence mode="wait">
+            <motion.div key={i} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <p className="text-xl md:text-2xl leading-relaxed text-ink">{a.q}</p>
+              <p className="mt-8 font-display font-bold text-head text-lg">{a.who} <span className="text-mute font-normal text-sm">/ {a.role}</span></p>
+            </motion.div>
+          </AnimatePresence>
+          <div className="flex gap-3 mt-8 justify-end">
+            <button onClick={() => setI((i - 1 + AWARDS.length) % AWARDS.length)} aria-label="Previous award" className="w-12 h-12 rounded-full border border-black/10 hover:bg-forest hover:text-white transition-colors"><i className="fas fa-arrow-left"></i></button>
+            <button onClick={() => setI((i + 1) % AWARDS.length)} aria-label="Next award" className="w-12 h-12 rounded-full border border-black/10 hover:bg-forest hover:text-white transition-colors"><i className="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============ BLOG → BEYOND WORK ============
+const BEYOND = [
+  { tag: 'Leadership', t: 'Reviving the ISHRAE student chapter', d: 'Led the 2022–23 revival of the ISHRAE chapter at IIEST, raising member participation by 30%.', ic: 'fa-people-group' },
+  { tag: 'Leadership', t: 'ASME Co-Secretary, 2020–23', d: 'Ran the weekly newsletter, organised events and coordinated 35+ members across activities.', ic: 'fa-newspaper' },
+  { tag: 'Campus', t: 'Newsletter & tech fests at IIEST', d: 'Managed, proofread and wrote newsletter articles, and brought brand partners to the tech fests.', ic: 'fa-handshake-angle' },
+  { tag: 'Interests', t: 'Cooking, badminton & running', d: 'Recreating restaurant-style dishes at home, competitive badminton and recreational running.', ic: 'fa-utensils' },
+  { tag: 'Interests', t: 'Design & photography', d: 'Validating product concepts for fun and photographing landscapes and architecture.', ic: 'fa-camera' },
+];
+
+function Beyond() {
+  const [s, setS] = useState(0);
+  const per = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : 3;
+  const pages = Math.max(1, BEYOND.length - per + 1);
+  return (
+    <section className="pb-24 lg:pb-32 px-6 lg:px-16 bg-paper">
+      <div className="max-w-[1344px] mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div><Eyebrow>Beyond Work</Eyebrow><RevealHeading text="Leadership & Life Outside The Office" className="mt-5" /></div>
+          <button onClick={() => setS((s + 1) % pages)} className="self-start md:self-auto px-7 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">More Stories <i className="fas fa-arrow-right ml-2"></i></button>
+        </div>
+        <div className="overflow-hidden mt-12">
+          <motion.div className="flex gap-6" animate={{ x: `calc(-${s} * (100% / ${per} + ${24 / per}px))` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }}>
+            {BEYOND.map((b) => (
+              <div key={b.t} className="shrink-0" style={{ width: `calc((100% - ${(per - 1) * 24}px) / ${per})` }}>
+                <div className="group">
+                  <div className="h-56 bg-forest grid-pattern rounded-t-xl flex items-center justify-center overflow-hidden">
+                    <i className={`fas ${b.ic} text-7xl text-lime/80 group-hover:scale-125 transition-transform duration-500`}></i>
+                  </div>
+                  <div className="bg-white mx-4 -mt-10 relative p-6 rounded-lg shadow-lg">
+                    <p className="flex items-center gap-4 text-xs text-mute"><span><i className="far fa-user mr-1"></i>Aritra</span><span><i className="far fa-folder mr-1"></i>{b.tag}</span></p>
+                    <h4 className="font-display font-bold text-lg mt-3 leading-snug">{b.t}</h4>
+                    <p className="text-sm leading-6 mt-2">{b.d}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+        <div className="flex justify-center gap-2 mt-8">
+          {Array.from({ length: pages }).map((_, k) => <button key={k} onClick={() => setS(k)} aria-label={`Page ${k + 1}`} className={`w-2.5 h-2.5 rounded-full ${k === s ? 'bg-forest' : 'bg-forest/25'}`} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============ CONTACT FORM ============
+function Contact() {
+  const [f, setF] = useState({ name: '', email: '', company: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('sending');
     try {
-      const res = await fetch('https://formspree.io/f/xkjrqjyb', {
-        method: 'POST',
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        setStatus('sent');
-        setFormData({ name: '', email: '', message: '' });
-        setTimeout(() => setStatus('idle'), 4000);
-      } else {
-        setStatus('error');
-      }
-    } catch {
-      setStatus('error');
-    }
+      const r = await fetch(FORMSPREE, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ ...f, _subject: `Website message from ${f.name}${f.company ? ` (${f.company})` : ''}` }) });
+      if (r.ok) { setStatus('sent'); setF({ name: '', email: '', company: '', message: '' }); setTimeout(() => setStatus('idle'), 5000); } else setStatus('error');
+    } catch { setStatus('error'); }
   };
-
+  const input = 'w-full px-5 py-4 bg-mint border border-transparent focus:border-forest focus:bg-white outline-none transition-colors text-ink placeholder:text-mute/70';
   return (
-    <Section id="contact" className="bg-gray-950">
-      <SectionTitle eyebrow="Contact" title="Let's Connect" description="Always open to conversations around business, tech, and anything worth learning about." />
-      <div className="grid lg:grid-cols-2 gap-12">
-        <div className="space-y-8">
-          <div className="space-y-6">
-            <a href="tel:+919073549642" className="flex items-center gap-4 group">
-              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-all">
-                <i className="fas fa-phone text-orange-400"></i>
-              </div>
-              <div>
-                <div className="text-gray-500 text-xs uppercase tracking-wider">Phone</div>
-                <div className="text-white font-medium group-hover:text-orange-400 transition-colors">🇮🇳 +91 9073549642</div>
-              </div>
-            </a>
-            <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="flex items-center gap-4 group">
-              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-all">
-                <i className="fas fa-envelope text-orange-400"></i>
-              </div>
-              <div>
-                <div className="text-gray-500 text-xs uppercase tracking-wider">Email</div>
-                <div className="text-white font-medium group-hover:text-orange-400 transition-colors">aritra.sreemany@edu.em-lyon.com</div>
-              </div>
-            </a>
-            <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
-              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-all">
-                <i className="fab fa-linkedin-in text-orange-400"></i>
-              </div>
-              <div>
-                <div className="text-gray-500 text-xs uppercase tracking-wider">LinkedIn</div>
-                <div className="text-white font-medium group-hover:text-orange-400 transition-colors">aritra-sreemany</div>
-              </div>
-            </a>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center">
-                <i className="fas fa-location-dot text-orange-400"></i>
-              </div>
-              <div>
-                <div className="text-gray-500 text-xs uppercase tracking-wider">Location</div>
-                <div className="text-white font-medium">Caluire-et-Cuire, Auvergne-Rhône-Alpes, France</div>
-              </div>
-            </div>
+    <section id="contact" className="py-24 lg:py-32 px-6 lg:px-16 bg-white">
+      <div className="max-w-[1344px] mx-auto grid lg:grid-cols-2 gap-16">
+        <div>
+          <Eyebrow>Contact</Eyebrow>
+          <RevealHeading text="Have An Internship In Mind? Let's Talk." className="mt-5" />
+          <p className="mt-6 leading-8">Messages from this form land straight in my inbox. I usually reply within a day.</p>
+          <div className="mt-10 space-y-5">
+            {[
+              { ic: 'fa-phone', l: 'Call me', v: `🇮🇳 ${PHONE}`, h: `tel:${PHONE.replace(/\s/g, '')}` },
+              { ic: 'fa-envelope', l: 'Email me', v: EMAIL, h: `mailto:${EMAIL}` },
+              { ic: 'fa-linkedin-in', l: 'LinkedIn', v: 'aritra-sreemany', h: LINKEDIN, brand: true },
+              { ic: 'fa-location-dot', l: 'Based in', v: LOCATION },
+            ].map((c) => {
+              const inner = (
+                <>
+                  <span className="w-14 h-14 rounded-full bg-mint group-hover:bg-lime flex items-center justify-center text-forest group-hover:text-ink transition-colors"><i className={`${c.brand ? 'fab' : 'fas'} ${c.ic}`}></i></span>
+                  <span><span className="block text-xs text-mute">{c.l}</span><span className="font-display font-bold text-head break-all">{c.v}</span></span>
+                </>
+              );
+              return c.h ? <a key={c.l} href={c.h} target={c.brand ? '_blank' : undefined} rel="noopener noreferrer" className="group flex items-center gap-4">{inner}</a> : <div key={c.l} className="group flex items-center gap-4">{inner}</div>;
+            })}
           </div>
-
-          <div className="pt-6 border-t border-gray-800">
-            <p className="text-gray-500 text-sm mb-4">Interests I'd love to discuss</p>
-            <div className="flex flex-wrap gap-2">
-              {['Operations', 'Marketing', 'Analytics', 'Strategy', 'Business', 'Tech'].map((topic) => (
-                <span key={topic} className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm">
-                  {topic}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Download CV Button */}
-          <CVDownloadButton variant="block" label="Download My CV" />
+          <div className="mt-10"><CVDropdown variant="dark" label="Download My CV" /></div>
         </div>
-
-        <form onSubmit={handleSubmit} className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8">
+        <form onSubmit={submit} className="bg-paper p-8 md:p-12 space-y-4">
+          <h3 className="font-display font-bold text-2xl mb-2">Send a message</h3>
           <AnimatePresence>
-            {status === 'sent' && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl text-orange-400 flex items-center gap-3 text-sm"
-              >
-                <i className="fas fa-check-circle"></i>
-                <span>Message sent — I'll get back to you soon.</span>
-              </motion.div>
-            )}
-            {status === 'error' && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 flex items-center gap-3 text-sm"
-              >
-                <i className="fas fa-triangle-exclamation"></i>
-                <span>Something went wrong — please email me directly at aritra.sreemany@edu.em-lyon.com.</span>
-              </motion.div>
-            )}
+            {status === 'sent' && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-4 bg-lime text-ink font-semibold text-sm"><i className="fas fa-check-circle mr-2"></i>Message sent. I'll get back to you soon.</motion.p>}
+            {status === 'error' && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-4 bg-red-100 text-red-700 text-sm"><i className="fas fa-triangle-exclamation mr-2"></i>Something went wrong. Please email me at {EMAIL}.</motion.p>}
           </AnimatePresence>
-          <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all"
-                placeholder="Your name"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Message</label>
-              <textarea
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                rows={5}
-                className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all resize-none"
-                placeholder="What's on your mind?"
-                required
-              ></textarea>
-            </div>
-            <button
-              type="submit"
-              disabled={status === 'sending'}
-              className="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/20 transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-            >
-              {status === 'sending' ? 'Sending…' : 'Send Message'}
-            </button>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Your name" className={input} />
+            <input required type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="Your email" className={input} />
           </div>
+          <input value={f.company} onChange={(e) => setF({ ...f, company: e.target.value })} placeholder="Company (optional)" className={input} />
+          <textarea required rows={6} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} placeholder="What's the role or question?" className={`${input} resize-none`} />
+          <button disabled={status === 'sending'} className="w-full py-4 bg-forest text-white font-display font-semibold hover:bg-lime hover:text-ink transition-colors disabled:opacity-60">{status === 'sending' ? 'Sending…' : 'Send Message'}</button>
         </form>
       </div>
-    </Section>
+    </section>
   );
 }
 
 // ============ FOOTER ============
 function Footer() {
   return (
-    <footer className="bg-gray-950 border-t border-gray-800/50 py-10">
-      <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="text-gray-500 text-sm">
-          © 2026 Aritra Sreemany. Crafted with passion.
+    <footer className="grid lg:grid-cols-[70px_1fr_34%] bg-ink">
+      <div className="hidden lg:flex items-center justify-center border-r border-white/10">
+        <span className="font-display font-bold text-2xl text-white -rotate-90 whitespace-nowrap">Aritra<span className="text-lime">.</span></span>
+      </div>
+      <div className="px-6 lg:px-14 py-14 grid-pattern">
+        <div className="grid sm:grid-cols-3 gap-6 pb-10 border-b border-white/10">
+          {[{ ic: 'fa-phone', l: 'Call Me:', v: PHONE, h: `tel:${PHONE.replace(/\s/g, '')}` }, { ic: 'fa-envelope', l: 'Email Me:', v: EMAIL, h: `mailto:${EMAIL}` }, { ic: 'fa-location-dot', l: 'Based In:', v: 'Lyon, France' }].map((c) => (
+            <a key={c.l} href={c.h} className="flex items-center gap-4 group">
+              <span className="w-12 h-12 shrink-0 rounded-full bg-white/10 group-hover:bg-lime flex items-center justify-center text-white group-hover:text-ink transition-colors"><i className={`fas ${c.ic}`}></i></span>
+              <span><span className="block text-white/60 text-sm">{c.l}</span><span className="text-white font-display font-semibold text-sm break-all">{c.v}</span></span>
+            </a>
+          ))}
         </div>
-        <div className="flex items-center gap-6">
-          <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-orange-400 transition-colors">
-            <i className="fab fa-linkedin-in"></i>
-          </a>
-          <a href="mailto:aritra.sreemany@edu.em-lyon.com" className="text-gray-500 hover:text-orange-400 transition-colors">
-            <i className="fas fa-envelope"></i>
-          </a>
-          <span className="text-gray-600 text-sm">MiM '28 · PGDM-IB '28</span>
+        <div className="grid sm:grid-cols-3 gap-8 pt-10">
+          <div>
+            <h5 className="font-display font-bold" style={{ color: '#fff' }}>Expertise</h5>
+            <ul className="mt-4 space-y-2.5">{SERVICES.slice(0, 5).map((s) => <li key={s.t}><button onClick={() => scrollTo('services')} className="text-white/60 hover:text-lime text-sm">{s.t}</button></li>)}</ul>
+          </div>
+          <div>
+            <h5 className="font-display font-bold" style={{ color: '#fff' }}>Pages</h5>
+            <ul className="mt-4 space-y-2.5">{NAV.slice(1).map((n) => <li key={n.id}><button onClick={() => scrollTo(n.id)} className="text-white/60 hover:text-lime text-sm">{n.label}</button></li>)}</ul>
+          </div>
+          <div>
+            <h5 className="font-display font-bold" style={{ color: '#fff' }}>Get My CV</h5>
+            <p className="text-white/60 text-sm mt-4 mb-5 leading-6">Ten versions, each tailored to a role family.</p>
+            <CVDropdown variant="lime" label="Choose CV" />
+          </div>
         </div>
+        <p className="text-white/40 text-sm mt-12">© 2026 Aritra Sreemany. MiM, emlyon business school · PGDM-IB, MDI Gurgaon.</p>
+      </div>
+      <div className="relative bg-lime px-8 py-14 flex flex-col items-center justify-center text-center overflow-hidden">
+        <svg className="absolute -right-20 -top-20 opacity-30" width="300" height="300"><circle cx="150" cy="150" r="140" stroke="#102930" fill="none" /><circle cx="150" cy="150" r="100" stroke="#102930" fill="none" /></svg>
+        <h3 className="relative font-display font-bold text-3xl md:text-4xl leading-tight">Have an Internship<br />in Mind?</h3>
+        <motion.button whileHover={{ scale: 1.06, rotate: -4 }} onClick={() => scrollTo('contact')} className="relative mt-8 w-40 h-40 rounded-full bg-ink text-white font-display font-semibold flex flex-col items-center justify-center gap-2">
+          <i className="fas fa-arrow-right -rotate-45 text-lime text-xl"></i>Contact Me
+        </motion.button>
+        <p className="relative mt-6 font-display font-semibold text-ink">Available Jan – Dec 2027</p>
+        <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" className="relative mt-4 w-11 h-11 rounded-full bg-ink text-lime flex items-center justify-center hover:scale-110 transition-transform"><i className="fab fa-linkedin-in"></i></a>
       </div>
     </footer>
   );
 }
 
-// ============ FLOATING ACTION BUTTON ============
-function FloatingActionButton() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const actions = [
-    {
-      icon: 'fab fa-linkedin-in',
-      label: 'LinkedIn',
-      href: 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/',
-      external: true,
-      color: 'bg-blue-600 hover:bg-blue-700',
-    },
-    {
-      icon: 'fas fa-phone',
-      label: 'Call',
-      href: 'tel:+919073549642',
-      external: false,
-      color: 'bg-orange-600 hover:bg-orange-700',
-    },
-    {
-      icon: 'fas fa-envelope',
-      label: 'Email',
-      href: 'mailto:aritra.sreemany@edu.em-lyon.com',
-      external: false,
-      color: 'bg-rose-600 hover:bg-rose-700',
-    },
-    {
-      icon: 'fas fa-download',
-      label: 'Download CV',
-      href: '#',
-      external: false,
-      color: 'bg-violet-600 hover:bg-violet-700',
-      action: downloadCV,
-    },
-  ];
-
+// ============ FLOATING ============
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => { const on = () => setShow(window.scrollY > 600); window.addEventListener('scroll', on); return () => window.removeEventListener('scroll', on); }, []);
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-            className="absolute bottom-16 right-0 flex flex-col gap-3"
-          >
-            {actions.map((action, i) => (
-              <motion.a
-                key={i}
-                href={action.action ? undefined : action.href}
-                onClick={action.action ? (e) => { e.preventDefault(); action.action?.(); setIsOpen(false); } : undefined}
-                target={action.external ? '_blank' : undefined}
-                rel={action.external ? 'noopener noreferrer' : undefined}
-                className={`flex items-center gap-3 px-4 py-3 ${action.color} text-white rounded-full shadow-lg whitespace-nowrap transition-all`}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <i className={`${action.icon} w-5 text-center`}></i>
-                <span className="text-sm font-medium">{action.label}</span>
-              </motion.a>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${isOpen ? 'bg-gray-700 rotate-45' : 'bg-gradient-to-r from-orange-500 to-amber-500'}`}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <i className={`fas ${isOpen ? 'fa-plus' : 'fa-comment-dots'} text-white text-lg`}></i>
-      </motion.button>
-    </div>
+    <AnimatePresence>
+      {show && (
+        <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={() => scrollTo('home')} aria-label="Back to top"
+          className="fixed right-6 bottom-6 z-40 w-12 h-12 rounded-full bg-lime text-ink shadow-xl hover:bg-forest hover:text-lime transition-colors">
+          <i className="fas fa-arrow-up"></i>
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 }
 
-// ============ SCROLL PROGRESS BAR ============
 function ScrollProgress() {
   const { scrollYProgress } = useScroll();
   return <motion.div id="scroll-progress" style={{ scaleX: scrollYProgress }} />;
 }
 
-// ============ MAIN APP ============
+// ============ APP ============
 export default function App() {
-  useHashScrollOnLoad();
-  const [filter, setFilter] = useState<string | null>(null);
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (id) setTimeout(() => scrollTo(id), 300);
+  }, []);
   return (
-    <ProjectFilterContext.Provider value={{ filter, setFilter }}>
-      <div className="min-h-screen bg-gray-950 text-white">
-        <ScrollProgress />
-        <Navbar />
-        <Hero />
-        <About />
-        <Experience />
-        <Education />
-        <Achievements />
-        <Projects />
-        <SkillsAndInterests />
-        <Contact />
-        <Footer />
-        <FloatingActionButton />
-      </div>
-    </ProjectFilterContext.Provider>
+    <div className="min-h-screen bg-white">
+      <ScrollProgress />
+      <TopBar />
+      <Navbar />
+      <Hero />
+      <About />
+      <Services />
+      <MissionVision />
+      <Growth />
+      <Journey />
+      <Experience />
+      <Projects />
+      <Credentials />
+      <FAQ />
+      <Awards />
+      <Beyond />
+      <Contact />
+      <Footer />
+      <BackToTop />
+    </div>
   );
 }
