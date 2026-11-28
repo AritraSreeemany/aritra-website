@@ -7,7 +7,7 @@ Ex-Associate Manager @ Jindal Stainless Limited | B.Tech, IIEST Shibpur
 
 CONTACT
 ----------------------------------------------------------------------
-Phone    : +91 9073549642
+Phone    : +33 7 45 74 01 52
 Email    : asreemany2000@gmail.com
 LinkedIn : https://www.linkedin.com/in/aritra-sreemany-9171351ba
 

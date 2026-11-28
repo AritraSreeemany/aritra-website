@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useScroll, useInView, animate } from 'framer-m
 
 // ============ DATA ============
 const EMAIL = 'aritra.sreemany@edu.em-lyon.com';
-const PHONE = '+91 9073549642';
+const PHONE = '+33 7 45 74 01 52';
 const LINKEDIN = 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/';
 const LOCATION = 'Caluire-et-Cuire, Lyon, France';
 const FORMSPREE = 'https://formspree.io/f/xkjrqjyb';
@@ -226,7 +226,7 @@ function Navbar() {
         <div className="hidden lg:flex items-center gap-6">
           <a href={`tel:${PHONE.replace(/\s/g, '')}`} className="flex items-center gap-3 group">
             <span className="w-11 h-11 rounded-full bg-lime flex items-center justify-center text-ink group-hover:bg-forest group-hover:text-lime transition-colors"><i className="fas fa-phone"></i></span>
-            <span className="text-xs leading-tight"><span className="block text-forest font-semibold">PHONE:</span><span className="text-ink text-sm">🇮🇳 {PHONE}</span></span>
+            <span className="text-xs leading-tight"><span className="block text-forest font-semibold">PHONE:</span><span className="text-ink text-sm">🇫🇷 {PHONE}</span></span>
           </a>
           <button onClick={() => scrollTo('contact')} className="rounded-full px-7 py-3.5 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">Contact Now</button>
         </div>
@@ -960,7 +960,7 @@ function Contact() {
           <p className="mt-6 leading-8">Messages from this form land straight in my inbox. I usually reply within a day.</p>
           <div className="mt-10 space-y-5">
             {[
-              { ic: 'fa-phone', l: 'Call me', v: `🇮🇳 ${PHONE}`, h: `tel:${PHONE.replace(/\s/g, '')}` },
+              { ic: 'fa-phone', l: 'Call me', v: `🇫🇷 ${PHONE}`, h: `tel:${PHONE.replace(/\s/g, '')}` },
               { ic: 'fa-envelope', l: 'Email me', v: EMAIL, h: `mailto:${EMAIL}` },
               { ic: 'fa-linkedin-in', l: 'LinkedIn', v: 'aritra-sreemany', h: LINKEDIN, brand: true },
               { ic: 'fa-location-dot', l: 'Based in', v: LOCATION },
