@@ -249,9 +249,9 @@ function Navbar() {
 
 // ============ HERO SLIDER ============
 const SLIDES = [
-  { eyebrow: 'OPERATIONS, PLANNING & EXECUTION', l1: 'Delivering', l2: 'Industrial Projects', l3: 'On Schedule', side: '35 months running a €125M steel expansion package, from vendor PO to commissioning.' },
-  { eyebrow: 'ANALYTICS, FORECASTING & STRATEGY', l1: 'Turning Data', l2: 'Into Decisions', l3: 'That Save Cost', side: 'Excel, Power BI and SAP trackers that cut tracking errors by 20%+ and steered raw-material planning.' },
-  { eyebrow: 'MiM @ EMLYON BUSINESS SCHOOL · 2027', l1: 'Engineer', l2: 'Turned Business', l3: 'Generalist', side: 'Available for a business internship in France & Europe, January to December 2027.' },
+  { eyebrow: 'OPERATIONS, PLANNING & EXECUTION', l1: 'Delivering', l2: 'Industrial Projects', l3: 'On Schedule', side: 'I spent 35 months taking a €125M steel plant expansion from purchase orders to commissioning.' },
+  { eyebrow: 'ANALYTICS, FORECASTING & STRATEGY', l1: 'Turning Data', l2: 'Into Decisions', l3: 'That Save Cost', side: 'I built Excel, Power BI and SAP trackers that cut tracking errors by 20%+ and fed our raw-material planning.' },
+  { eyebrow: 'MiM @ EMLYON BUSINESS SCHOOL · 2027', l1: 'Engineer', l2: 'Turned Business', l3: 'Generalist', side: 'Looking for a business internship in France or elsewhere in Europe, January to December 2027.' },
 ];
 
 function Hero() {
@@ -356,7 +356,7 @@ function About() {
           <motion.div whileHover={{ y: -6 }} className="absolute right-0 bottom-0 w-[52%] bg-white p-3 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
             <div className="aspect-square bg-forest grid-pattern flex flex-col items-center justify-center text-center p-4">
               <span className="font-display font-bold text-5xl text-lime"><Counter to={125} prefix="€" suffix="M" /></span>
-              <span className="text-white/80 text-sm mt-2">BOF expansion project delivered on site</span>
+              <span className="text-white/80 text-sm mt-2">BOF expansion I worked on</span>
             </div>
           </motion.div>
           <motion.button onClick={() => scrollTo('credentials')} whileHover={{ scale: 1.04 }} className="absolute left-6 bottom-24 bg-white shadow-xl px-5 py-4 text-left">
@@ -373,12 +373,12 @@ function About() {
           <Eyebrow>About Me</Eyebrow>
           <RevealHeading text="The Journey From Engineering To Business" className="mt-5" />
           <p className="mt-6 leading-8">
-            Mechanical engineer from IIEST Shibpur (CGPA 8.93), now a MiM student at emlyon business school specialising in Business Analytics &amp; Consulting, through a dual-degree with MDI Gurgaon. Before this I spent 35 months as Associate Manager, Operations at Jindal Stainless, India's largest stainless steel maker.
+            I'm a mechanical engineer from IIEST Shibpur (CGPA 8.93). After graduating I spent 35 months at Jindal Stainless, India's largest stainless steel maker, as Associate Manager, Operations. Now I'm at emlyon business school for a MiM, through a dual degree with MDI Gurgaon, focusing on Business Analytics &amp; Consulting.
           </p>
           <div className="mt-8 space-y-6">
             {[
-              { ic: 'fa-diagram-project', t: 'Project Execution', d: 'Led the full RMHS package of a €125M BOF expansion, from planning and vendor negotiation to commissioning.' },
-              { ic: 'fa-chart-pie', t: 'Planning & Analytics', d: 'Built rolling 3-month raw-material plans and Excel / Power BI trackers that leadership used for decisions.' },
+              { ic: 'fa-diagram-project', t: 'Project Execution', d: 'I ran the full RMHS package of a €125M BOF expansion: planning, vendor negotiation, all the way to commissioning.' },
+              { ic: 'fa-chart-pie', t: 'Planning & Analytics', d: 'I built rolling 3-month raw-material plans, plus the Excel and Power BI trackers our leadership used to make decisions.' },
             ].map((f) => (
               <div key={f.t} className="flex gap-5 group">
                 <span className="w-14 h-14 shrink-0 rounded-full border border-forest/20 flex items-center justify-center text-forest text-xl group-hover:bg-lime group-hover:border-lime transition-colors"><i className={`fas ${f.ic}`}></i></span>
@@ -396,7 +396,7 @@ function About() {
             <button onClick={() => scrollTo('services')} className="rounded-full px-8 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">What I Do</button>
             <div className="flex items-center gap-3">
               <img src="/aritra-photo.jpg" alt="" className="w-12 h-12 rounded-full object-cover border-2 border-lime" />
-              <div><p className="text-2xl text-head" style={{ fontFamily: 'Caveat, cursive' }}>Aritra Sreemany</p><p className="text-xs text-forest font-semibold">MiM, emlyon '28</p></div>
+              <div><p className="text-2xl text-head" style={{ fontFamily: 'Caveat, cursive' }}>Aritra Sreemany</p><p className="text-xs text-forest font-semibold">MiM, emlyon 2027</p></div>
             </div>
           </div>
         </div>
@@ -407,12 +407,12 @@ function About() {
 
 // ============ SERVICES (EXPERTISE) ============
 const SERVICES = [
-  { n: '01', t: 'Operations & Supply Chain', ic: 'fa-truck-fast', d: 'Production planning, raw-material forecasting and sourcing decisions under supply shifts.', pts: ['Rolling 3-month production plans setting the stainless grade mix', 'Raw-material forecasts 3 months ahead driving procurement', 'Import vs domestic sourcing calls, flagging shortages early', 'Daily output vs plan monitoring with alternate plans'], cv: 'cv-operations-supply-chain.pdf' },
-  { n: '02', t: 'Project Management', ic: 'fa-diagram-project', d: 'End-to-end package delivery on a €125M capex project, from POs to commissioning.', pts: ['Led an 18-member team commissioning BOF-1 & 2 and a Twin Ladle Furnace', 'Recovered a year-long RMHS delay, finishing 9+ months ahead of other teams', 'Systematised on-site material tracking with live inventory status', 'Bi-monthly reports to senior leadership'], cv: 'cv-project-management-operations.pdf' },
-  { n: '03', t: 'Procurement & Cost', ic: 'fa-handshake', d: 'Vendor negotiation, billing reconciliation and cost optimisation in CAPEX.', pts: ['Negotiated pricing & POs with 13+ vendors and EPC contractors', 'Reconciled €45k–€72k monthly billing in SAP & Excel for audit compliance', 'Plant liaison on an overseas cost-optimisation software rollout'], cv: 'cv-business-development.pdf' },
-  { n: '04', t: 'Analytics & Reporting', ic: 'fa-chart-column', d: 'Excel, Power BI and SAP trackers that turn site data into decisions.', pts: ['Power BI & Excel trackers that cut tracking errors 20%+', 'Advanced Excel, financial modelling, Python basics', 'Month-end reconciliations for leadership reviews'], cv: 'cv-general.pdf' },
-  { n: '05', t: 'Strategy & Consulting', ic: 'fa-chess-knight', d: 'Structured problem-solving sharpened by case competitions and consulting coursework.', pts: ['Top 99 of 1,344 teams, Global Management Challenge India 2026', 'BCG Strategy Consulting & McKinsey Forward programs', 'emlyon specialisation in Business Analytics & Consulting'], cv: 'cv-strategy-consulting.pdf' },
-  { n: '06', t: 'Marketing & Growth', ic: 'fa-bullhorn', d: 'Customer segmentation, pricing and retention, tested in simulation and campus work.', pts: ['7-round brokerage marketing simulation: segments, pricing, discounts', 'Brought brand partners to IIEST tech fests', 'Ran a weekly student newsletter as ASME Co-Secretary'], cv: 'cv-sales-marketing.pdf' },
+  { n: '01', t: 'Operations & Supply Chain', ic: 'fa-truck-fast', d: 'Production planning, raw-material forecasts and sourcing calls while supply kept changing.', pts: ['Rolling 3-month production plans that set the stainless grade mix', 'Raw-material forecasts three months out, which drove procurement', 'Import vs domestic sourcing decisions, with shortages flagged early', 'Daily output vs plan checks, with a backup plan ready'], cv: 'cv-operations-supply-chain.pdf' },
+  { n: '02', t: 'Project Management', ic: 'fa-diagram-project', d: 'Owning one package on a €125M capex project, from purchase orders to commissioning.', pts: ['Led an 18-person team through commissioning of BOF-1 & 2 and the Twin Ladle Furnace', 'Picked up an RMHS package a year behind and recovered 9+ months, ending ahead of other teams', 'Set up on-site material tracking with live inventory status', 'Sent bi-monthly reports to senior leadership'], cv: 'cv-project-management-operations.pdf' },
+  { n: '03', t: 'Procurement & Cost', ic: 'fa-handshake', d: 'Negotiating with vendors, reconciling bills and keeping CAPEX costs in check.', pts: ['Negotiated pricing and POs with 13+ vendors and EPC contractors', 'Reconciled €45k–€72k of monthly billing in SAP and Excel for audits', 'Plant contact for an overseas cost-optimisation software rollout'], cv: 'cv-business-development.pdf' },
+  { n: '04', t: 'Analytics & Reporting', ic: 'fa-chart-column', d: 'Excel, Power BI and SAP trackers that turned site data into something leadership could act on.', pts: ['Power BI and Excel trackers that cut tracking errors by 20%+', 'Advanced Excel, financial modelling, basic Python', 'Month-end reconciliations for leadership reviews'], cv: 'cv-general.pdf' },
+  { n: '05', t: 'Strategy & Consulting', ic: 'fa-chess-knight', d: 'Structured problem-solving, practised in case competitions and consulting coursework.', pts: ['Top 99 of 1,344 teams, Global Management Challenge India 2026', 'BCG strategy consulting, PwC M&A and McKinsey Forward programmes', 'Business Analytics & Consulting track at emlyon'], cv: 'cv-strategy-consulting.pdf' },
+  { n: '06', t: 'Marketing & Growth', ic: 'fa-bullhorn', d: 'Customer segmentation, pricing and retention, tried out in a simulation and on campus.', pts: ['7-round brokerage marketing simulation: segments, pricing, discounts', 'Brought brand partners to IIEST tech fests', 'Ran a weekly student newsletter as ASME Co-Secretary'], cv: 'cv-sales-marketing.pdf' },
 ];
 
 function Services() {
@@ -478,9 +478,9 @@ function Services() {
 
 // ============ MISSION & VISION (TABS) ============
 const TABS = [
-  { k: 'About Me', p: 'I like problems where operations, numbers and people meet. At Jindal Stainless that meant chasing EPC contractors, reconciling bills in SAP and rebuilding production plans when supply shifted overnight.', list: ['Cross-functional leadership', 'Stakeholder management', 'Root cause analysis', 'Cost optimisation'] },
-  { k: 'What I Bring', p: 'Three years of shop-floor reality plus business-school frameworks. I can build the tracker, run the vendor call and present the result to leadership in the same week.', list: ['Advanced Excel & Power BI', 'SAP & ERP workflows', 'Vendor & EPC negotiation', 'Leadership reporting'] },
-  { k: "What I'm Looking For", p: 'A 2027 internship in France or Europe in operations, supply chain, strategy, consulting, business development or project management, where I can own a real deliverable from week one.', list: ['Start: January 2027', 'Location: Lyon, Paris or remote', 'French B1 · English C2', 'Full-time internship'] },
+  { k: 'About Me', p: 'I like problems where operations, numbers and people overlap. At Jindal Stainless that meant chasing EPC contractors, reconciling bills in SAP, and redoing production plans when supply changed overnight.', list: ['Working across teams', 'Managing stakeholders', 'Finding root causes', 'Cutting costs'] },
+  { k: 'What I Bring', p: 'Three years on the shop floor plus business-school frameworks. In one week I can build the tracker, run the vendor call and present the results to leadership.', list: ['Advanced Excel & Power BI', 'SAP & ERP workflows', 'Vendor & EPC negotiation', 'Leadership reporting'] },
+  { k: "What I'm Looking For", p: 'A 2027 internship in France or Europe in operations, supply chain, strategy, consulting, business development or project management. I want to own a real deliverable from week one.', list: ['Start: January 2027', 'Location: Lyon, Paris or remote', 'French B1 · English C2', 'Full-time internship'] },
 ];
 
 function MissionVision() {
@@ -490,7 +490,7 @@ function MissionVision() {
       <div className="max-w-[1344px] mx-auto grid lg:grid-cols-2 gap-16 items-center">
         <div>
           <Eyebrow>Mission &amp; Vision</Eyebrow>
-          <RevealHeading text="I Handle The Complexity, So Projects Ship On Time." className="mt-5" />
+          <RevealHeading text="I Like Untangling Messy Projects." className="mt-5" />
           <div className="mt-10 flex border-b border-black/10">
             {TABS.map((tab, k) => (
               <button key={tab.k} onClick={() => setT(k)} className={`relative flex-1 pb-4 font-display font-semibold text-sm md:text-base transition-colors ${t === k ? 'text-head' : 'text-mute hover:text-forest'}`}>
@@ -539,9 +539,9 @@ function MissionVision() {
 // ============ GROWTH STATS BAND ============
 function Growth() {
   const stats = [
-    { pct: 76, big: <Counter to={13} suffix="+" />, t: 'Vendors & EPCs', d: 'Negotiated pricing, POs and lead times' },
+    { pct: 76, big: <Counter to={13} suffix="+" />, t: 'Vendors & EPCs', d: 'Pricing, POs and lead-time negotiations' },
     { pct: 72, big: <Counter to={18} />, t: 'Member team', d: 'Led through BOF-1 & 2 commissioning' },
-    { pct: 20, big: <Counter to={20} suffix="%+" />, t: 'Fewer errors', d: 'From Excel & Power BI trackers' },
+    { pct: 20, big: <Counter to={20} suffix="%+" />, t: 'Fewer tracking errors', d: 'From Excel & Power BI trackers' },
     { pct: 75, big: <Counter to={9} suffix="+" />, t: 'Months recovered', d: 'On a year-delayed RMHS package' },
   ];
   return (
@@ -549,7 +549,7 @@ function Growth() {
       <div className="absolute inset-0 grid-pattern"></div>
       <div className="relative max-w-[1344px] mx-auto px-6 lg:px-16 py-24">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div><Eyebrow>Impact In Numbers</Eyebrow><RevealHeading text="Building Results On The Shop Floor" light className="mt-5" /></div>
+          <div><Eyebrow>Impact In Numbers</Eyebrow><RevealHeading text="What I Got Done On Site" light className="mt-5" /></div>
           <button onClick={() => scrollTo('experience')} className="rounded-full self-start lg:self-auto px-8 py-4 bg-lime text-ink font-display font-semibold text-sm hover:bg-white transition-colors">See The Work</button>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mt-16">
@@ -567,10 +567,10 @@ function Growth() {
 
 // ============ HOW IT WORKS → JOURNEY ============
 const JOURNEY = [
-  { n: '01', t: 'Engineering', s: 'IIEST Shibpur · 2019–23', d: 'B.Tech Mechanical, CGPA 8.93. Coursework in project & operations management, data science and industrial engineering. Design internship at Primetals Technologies.' },
-  { n: '02', t: 'Industry', s: 'Jindal Stainless · 2023–26', d: 'Associate Manager, Operations. RMHS package execution on a €125M BOF expansion, then raw-material planning for stainless steel production.' },
-  { n: '03', t: 'Management', s: 'MDI Gurgaon · 2026–28', d: 'PGDM in International Business, the dual-degree partner programme that sends me to emlyon for 2027.' },
-  { n: '04', t: 'Europe', s: 'emlyon business school · 2027', d: 'Master in Management, specialising in Business Analytics & Consulting. Looking for an internship in France & Europe.' },
+  { n: '01', t: 'Engineering', s: 'IIEST Shibpur · 2019–23', d: 'B.Tech in Mechanical Engineering, CGPA 8.93. I took project and operations management, data science and industrial engineering courses, and did a design internship at Primetals Technologies.' },
+  { n: '02', t: 'Industry', s: 'Jindal Stainless · 2023–26', d: 'Associate Manager, Operations. First I ran the RMHS package on a €125M BOF expansion, then moved to raw-material planning for stainless steel production.' },
+  { n: '03', t: 'Management', s: 'MDI Gurgaon · 2026–28', d: 'PGDM in International Business. It is the dual-degree programme that sends me to emlyon for 2027.' },
+  { n: '04', t: 'Europe', s: 'emlyon business school · 2027', d: 'Master in Management, specialising in Business Analytics & Consulting, and looking for an internship in France or Europe.' },
 ];
 
 function Journey() {
@@ -580,7 +580,7 @@ function Journey() {
       <svg className="absolute -left-24 bottom-0 opacity-40" width="320" height="320"><circle cx="160" cy="160" r="150" stroke="#1a4137" strokeOpacity=".15" fill="none" /><circle cx="160" cy="160" r="110" stroke="#1a4137" strokeOpacity=".15" fill="none" /></svg>
       <div className="relative max-w-[1344px] mx-auto text-center">
         <Eyebrow>How I Got Here</Eyebrow>
-        <RevealHeading text="Learn, Build, Lead & Grow Across Two Continents." className="mt-5 max-w-3xl mx-auto" />
+        <RevealHeading text="From A Steel Plant In India To Business School In Lyon." className="mt-5 max-w-3xl mx-auto" />
         <div className="mt-16 bg-white border border-black/5 grid md:grid-cols-2 lg:grid-cols-4 text-left">
           {JOURNEY.map((j, k) => (
             <button key={j.n} onClick={() => setA(k)} onMouseEnter={() => setA(k)} className={`group p-9 text-left border-black/5 ${k ? 'lg:border-l' : ''} ${k % 2 ? 'md:border-l' : ''} border-t md:border-t-0 transition-colors ${a === k ? 'bg-mint' : 'hover:bg-mint/60'}`}>
@@ -593,7 +593,7 @@ function Journey() {
             </button>
           ))}
         </div>
-        <p className="mt-12 font-display font-semibold text-head text-lg">Hiring for a 2027 internship in France? <button onClick={() => scrollTo('contact')} className="text-forest underline underline-offset-4 decoration-lime decoration-2 hover:text-ink">Let's connect</button></p>
+        <p className="mt-12 font-display font-semibold text-head text-lg">Hiring interns for 2027 in France? <button onClick={() => scrollTo('contact')} className="text-forest underline underline-offset-4 decoration-lime decoration-2 hover:text-ink">Let's connect</button></p>
       </div>
     </section>
   );
@@ -601,8 +601,8 @@ function Journey() {
 
 // ============ EXPERIENCE (ACCORDION) ============
 const ROLES = [
-  { t: 'Project Execution: RMHS Package, BOF Expansion', pts: ['Led the full RMHS package from planning to commissioning in a €125.19M BOF expansion', 'Negotiated pricing & purchase orders with 13+ vendors & EPC contractors on cost & lead times', 'Led an 18-member team in site commissioning of BOF-1 & 2, Ladle addition & Twin Ladle Furnace', 'Overcame a year-long delay on the RMHS package, recovering 9+ months ahead of other teams', 'Reconciled €45k–€72k monthly vendor billing in SAP & Excel, ensuring audit compliance', 'Engineered Excel & Power BI trackers for package progress & materials, cutting errors 20%+'] },
-  { t: 'Planning & Optimisation: Raw Material Planning', pts: ['Formulated rolling 3-month production plans, setting SS grade mix for quality & raw material cost', 'Forecasted raw material needs 3 months ahead, driving procurement & supply chain planning', 'Prioritised import & domestic sourcing as supply shifted, flagging shortages early', 'Presented bi-monthly production reports to senior leadership with month-end reconciliations', 'Plant liaison with the overseas software team on a cost-optimisation tool rollout'] },
+  { t: 'Project Execution: RMHS Package, BOF Expansion', pts: ['Led the full RMHS package from planning to commissioning on a €125.19M BOF expansion', 'Negotiated pricing and purchase orders with 13+ vendors and EPC contractors, mostly on cost and lead time', 'Led an 18-person team on site for commissioning of BOF-1 & 2, Ladle addition and Twin Ladle Furnace', 'Took over an RMHS package nearly a year late and recovered 9+ months, finishing ahead of other teams', 'Reconciled €45k–€72k of monthly vendor billing in SAP and Excel so audits went smoothly', 'Built Excel and Power BI trackers for package progress and materials, which cut errors by 20%+'] },
+  { t: 'Planning & Optimisation: Raw Material Planning', pts: ['Wrote rolling 3-month production plans and set the stainless-steel grade mix around quality and raw-material cost', 'Forecast raw-material needs three months ahead, which fed procurement and supply-chain planning', 'Reprioritised import and domestic sourcing as supply shifted, and flagged shortages early', 'Presented bi-monthly production reports and month-end reconciliations to senior leadership', 'Was the plant contact for the overseas software team on a cost-optimisation tool rollout'] },
   { t: 'Design Internship: Primetals Technologies (2022)', pts: ['Designed & validated a hydraulic ladle tilter in SolidWorks', 'Worked with the design team on load and safety checks for steel-plant equipment'] },
 ];
 
@@ -640,7 +640,7 @@ function Experience() {
         </div>
         <div className="px-6 lg:px-16 py-20">
           <Eyebrow>Experience</Eyebrow>
-          <RevealHeading text="Driving Results Through Execution & Planning." className="mt-5" />
+          <RevealHeading text="What I Actually Did On The Job." className="mt-5" />
           <div className="mt-10 space-y-3">
             {ROLES.map((r, k) => (
               <div key={r.t} className={`transition-colors ${o === k ? 'bg-white shadow-lg' : ''}`}>
@@ -667,13 +667,14 @@ function Experience() {
 // ============ PROJECTS (CASE STUDY) ============
 type Project = { tag: string; t: string; ic: string; d: string; res: string; img?: string; stats?: [string, string][]; link?: { href: string; label: string } };
 const PROJECTS: Project[] = [
-  { tag: 'Operations', t: 'RMHS Conveyor Package & Material Tracking', ic: 'fa-boxes-stacked', d: 'Mapped specifications, generated material codes and ran live inventory checks for the entire Raw Material Handling System of the BOF expansion: belts, idlers, frames and spares across every conveyor line, from purchase order to erection.', res: 'Erection & commissioning of the full RMHS circuit for BOF-1 & 2, Ladle addition & Twin Ladle Furnace', stats: [['11', 'conveyor lines'], ['3.4 km', 'conveyor belt'], ['5,300+', 'idlers tracked']] },
-  { tag: 'Analytics', t: 'Package Progress Dashboards', ic: 'fa-chart-column', d: 'Excel and Power BI trackers for package progress and site materials, used in leadership reviews and month-end reconciliations.', res: 'Tracking errors cut by 20%+' },
-  { tag: 'Project Recovery', t: 'Turning Around A Delayed Package', ic: 'fa-rotate', d: 'Took over an RMHS package running almost a year late and pulled it back through daily EPC follow-ups, tighter sequencing and cross-functional coordination.', res: '9+ months recovered, ahead of other teams' },
-  { tag: 'Engineering', t: 'EGR-Integrated Catalysed DPF', ic: 'fa-car-side', img: '/certs/techgium-dpf-cad.jpg', d: 'L&T TECHgium 5th Edition proof of concept: raising NO2 concentration through exhaust gas recirculation to drive catalytic passive regeneration of a diesel particulate filter for BS6 engines. Built the CAD model of the DPF assembly and porous cordierite core.', res: 'National Finalist, L&T TECHgium 2022' },
-  { tag: 'Research', t: 'Cascade Refrigeration Systems', ic: 'fa-snowflake', img: '/certs/paper-ishrae.jpg', d: 'Thermo-economic analysis of a two-stage cascade refrigeration system using R41/R161, published in the ISHRAE Journal, and a thermodynamic and cost assessment with different refrigerants published as a Springer Nature chapter (INCOM 2024).', res: 'Two peer-reviewed publications', link: { href: 'https://doi.org/10.1007/978-981-97-7308-4_10', label: 'Read on Springer' } },
-  { tag: 'Engineering', t: 'Hydraulic Ladle Tilter', ic: 'fa-gears', img: '/certs/primetals-internship.jpg', d: 'Design internship at Primetals Technologies (a Mitsubishi Heavy Industries joint venture), June to July 2022: designed and validated a hydraulic ladle tilter in SolidWorks.', res: 'Internship completed with appreciable performance', link: { href: '/docs/Primetals_Internship_Certificate.pdf', label: 'Internship certificate' } },
-  { tag: 'Marketing', t: 'Brokerage Marketing Simulation', ic: 'fa-bullseye', d: 'Seven-round simulation: analysed customer segments, pricing and discounts to grow retention and acquisition.', res: 'Retention & acquisition gains' },
+  { tag: 'Operations', t: 'RMHS Conveyor Package & Material Tracking', ic: 'fa-boxes-stacked', d: 'I mapped specifications, generated material codes and ran live inventory checks for the whole Raw Material Handling System of the BOF expansion: belts, idlers, frames and spares across every conveyor line, from purchase order to erection.', res: 'Erection & commissioning of the full RMHS circuit for BOF-1 & 2, Ladle addition & Twin Ladle Furnace', stats: [['11', 'conveyor lines'], ['3.4 km', 'conveyor belt'], ['5,300+', 'idlers tracked']] },
+  { tag: 'Analytics', t: 'Package Progress Dashboards', ic: 'fa-chart-column', d: 'Excel and Power BI trackers for package progress and site materials. Leadership used them in reviews, and I used them for month-end reconciliations.', res: 'Tracking errors cut by 20%+' },
+  { tag: 'Project Recovery', t: 'Turning Around A Delayed Package', ic: 'fa-rotate', d: 'I took over an RMHS package that was almost a year late. Daily follow-ups with the EPC, tighter sequencing and coordination across teams pulled it back.', res: '9+ months recovered, ahead of other teams' },
+  { tag: 'Engineering', t: 'EGR-Integrated Catalysed DPF', ic: 'fa-car-side', img: '/certs/techgium-dpf-cad.jpg', d: 'Our L&T TECHgium 5th Edition proof of concept: use exhaust gas recirculation to raise NO2 levels, so a catalyst can regenerate a diesel particulate filter passively in BS6 engines. I built the CAD model of the DPF assembly and its porous cordierite core.', res: 'National Finalist, L&T TECHgium 2022' },
+  { tag: 'Research', t: 'Cascade Refrigeration Systems', ic: 'fa-snowflake', img: '/certs/paper-ishrae.jpg', d: 'A thermo-economic analysis of a two-stage cascade refrigeration system running on R41/R161, published in the ISHRAE Journal. A second study, a thermodynamic and cost comparison of other refrigerants, came out as a Springer Nature chapter (INCOM 2024).', res: 'Two peer-reviewed publications', link: { href: 'https://doi.org/10.1007/978-981-97-7308-4_10', label: 'Read on Springer' } },
+  { tag: 'Engineering', t: 'Hydraulic Ladle Tilter', ic: 'fa-gears', img: '/certs/primetals-internship.jpg', d: 'Design internship at Primetals Technologies (a Mitsubishi Heavy Industries joint venture), June to July 2022. I designed and validated a hydraulic ladle tilter in SolidWorks.', res: 'Internship completed with appreciable performance', link: { href: '/docs/Primetals_Internship_Certificate.pdf', label: 'Internship certificate' } },
+  { tag: 'Marketing', t: 'Brokerage Marketing Simulation', ic: 'fa-bullseye', d: 'A seven-round simulation where I worked on customer segments, pricing and discounts to improve retention and acquisition.', res: 'Retention and acquisition gains' },
+  { tag: 'Consulting', t: 'PwC M&A Consulting Simulation', ic: 'fa-scale-balanced', img: '/certs/pwc-simulation.jpg', d: 'A PwC job simulation on M&A, done end to end. I wrote a diligence brief on Apple for a buy-side deal team, drafted a 20-question divestiture interview guide for a CFO selling a wearables unit, and built a three-slide deck explaining synergies through Microsoft and Activision Blizzard. The last task was an Excel synergy model with Low, Base and High scenarios for an airline buying a regional carrier, plus a short email to my supervisor that leads with the answer.', res: 'Certificate of Completion, 28 Nov 2026', link: { href: '/docs/PwC_Management_Consulting_Simulation_Certificate.pdf', label: 'View the certificate' } },
 ];
 
 function Projects() {
@@ -689,7 +690,7 @@ function Projects() {
       <div className="relative max-w-[1344px] mx-auto">
         <div className="text-center">
           <Eyebrow>Case Studies</Eyebrow>
-          <RevealHeading text="Showcasing Projects & Results From Real Work." className="mt-5 max-w-3xl mx-auto" />
+          <RevealHeading text="Projects I'm Proud Of." className="mt-5 max-w-3xl mx-auto" />
           <div className="flex flex-wrap justify-center gap-2 mt-8">
             {tags.map((t) => <button key={t} onClick={() => setFilter(t)} className={`px-4 py-2 text-sm font-display font-semibold rounded-full border transition-colors ${filter === t ? 'bg-forest text-white border-forest' : 'border-black/10 text-ink hover:border-forest'}`}>{t}</button>)}
           </div>
@@ -735,6 +736,7 @@ function Projects() {
 type Cert = { t: string; by: string; yr: string; ic: string; img?: string; pdf?: string; code?: string; link?: string };
 const CERTS: Cert[] = [
   { t: 'Introduction to Strategy Consulting', by: 'BCG · Forage job simulation', yr: '2026', ic: 'fa-chess-knight', img: '/certs/bcg-strategy.jpg', pdf: '/docs/BCG_Strategy_Consulting_Certificate.pdf', code: '6af8c9b836af9db3eb1b7009' },
+  { t: 'Management Consulting Simulation', by: 'PwC US · Forage job simulation', yr: '2026', ic: 'fa-scale-balanced', img: '/certs/pwc-simulation.jpg', pdf: '/docs/PwC_Management_Consulting_Simulation_Certificate.pdf', code: '6a63ecd9d3a970278afb2101' },
   { t: 'Project Manager Job Simulation', by: 'Siemens · Forage', yr: '2026', ic: 'fa-industry', img: '/certs/siemens-pm.jpg', pdf: '/docs/Siemens_Project_Manager_Certificate.pdf', code: '6a63eda1e22952070f093c62' },
   { t: 'Forward Program', by: 'McKinsey & Company', yr: '2026', ic: 'fa-forward' },
   { t: 'ESG Fundamentals', by: 'TATA', yr: '2026', ic: 'fa-leaf' },
@@ -813,10 +815,10 @@ function Credentials() {
 
 // ============ FAQ ============
 const FAQS = [
-  { q: 'When are you available for an internship?', a: 'From January to December 2027, during my MiM year at emlyon business school. I can start in January and take a full-length internship.' },
-  { q: 'Where are you based?', a: 'In Caluire-et-Cuire, right next to Lyon. Open to roles in Lyon, Paris and elsewhere in Europe, on-site or hybrid.' },
-  { q: 'What languages do you work in?', a: 'English at C2 level and French at B1, improving every week. Also Hindi and Bengali.' },
-  { q: 'Which roles fit you best?', a: 'Operations & supply chain, project management, strategy & consulting, business development and business analytics. Pick the matching CV from the download menu.' },
+  { q: 'When are you available for an internship?', a: 'From January to December 2027, during my MiM year at emlyon. I can start in January and do a full-length internship.' },
+  { q: 'Where are you based?', a: 'Caluire-et-Cuire, just outside Lyon. I am open to Lyon, Paris and elsewhere in Europe, on-site or hybrid.' },
+  { q: 'What languages do you work in?', a: 'English at C2 and French at B1, getting better every week. I also speak Hindi and Bengali.' },
+  { q: 'Which roles fit you best?', a: 'Operations and supply chain, project management, strategy and consulting, business development, business analytics. The CV download menu has a version for each.' },
   { q: 'What tools do you use day to day?', a: 'Advanced Excel, Power BI, SAP, PowerPoint, Canva, financial modelling and basic Python.' },
 ];
 
@@ -833,7 +835,7 @@ function FAQ() {
         <div>
           <Eyebrow>FAQ's</Eyebrow>
           <h2 className="font-display font-bold text-4xl md:text-5xl mt-5 leading-tight" style={{ color: '#fff' }}>Recruiter<br />Questions</h2>
-          <p className="text-white/70 mt-5 leading-7">Quick answers to what most recruiters ask first. Anything else, send me a message.</p>
+          <p className="text-white/70 mt-5 leading-7">The things recruiters usually ask first. If yours isn't here, just message me.</p>
           <button onClick={() => scrollTo('contact')} className="rounded-full mt-8 px-7 py-4 bg-white text-ink font-display font-semibold text-sm hover:bg-lime transition-colors">Ask Me Directly</button>
         </div>
         <div className="space-y-3">
@@ -855,10 +857,10 @@ function FAQ() {
 
 // ============ TESTIMONIAL → AWARDS SLIDER ============
 const AWARDS = [
-  { q: 'Cleared the national qualifiers of Global Management Challenge India 2026, ranking 1st in our group and among the top 99 of 1,344 teams.', who: 'Global Management Challenge', role: 'India 2026', ic: 'fa-trophy' },
-  { q: 'Achieved Global Rank 9 and National Rank 3 in the Critical Design Review of ASME HPVC 2021 with Team Ragnar, in a cross-functional engineering design team.', who: 'ASME HPVC', role: 'Human Powered Vehicle Challenge 2021', ic: 'fa-bicycle' },
-  { q: 'Qualified as National Finalist in L&T TECHgium 5th Edition, competing against the top engineering teams across India.', who: 'L&T TECHgium', role: '5th Edition · National Finalist', ic: 'fa-medal' },
-  { q: 'Co-authored a peer-reviewed research chapter on Cascade Refrigeration Systems, published by Springer Nature and the ISHRAE Journal.', who: 'Springer Nature & ISHRAE', role: 'Published Research', ic: 'fa-book-open' },
+  { q: 'We cleared the national qualifiers of Global Management Challenge India 2026, 1st in our group and in the top 99 of 1,344 teams.', who: 'Global Management Challenge', role: 'India 2026', ic: 'fa-trophy' },
+  { q: 'Team Ragnar placed Global Rank 9 and National Rank 3 in the Critical Design Review at ASME HPVC 2021.', who: 'ASME HPVC', role: 'Human Powered Vehicle Challenge 2021', ic: 'fa-bicycle' },
+  { q: 'We made it to the national finals of L&T TECHgium 5th Edition, up against engineering teams from across India.', who: 'L&T TECHgium', role: '5th Edition · National Finalist', ic: 'fa-medal' },
+  { q: 'Co-authored research on cascade refrigeration systems, published as a Springer Nature chapter and in the ISHRAE Journal.', who: 'Springer Nature & ISHRAE', role: 'Published Research', ic: 'fa-book-open' },
 ];
 
 function Awards() {
@@ -873,7 +875,7 @@ function Awards() {
             <AnimatePresence mode="wait"><motion.i key={i} initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} className={`fas ${a.ic} text-7xl text-lime`}></motion.i></AnimatePresence>
             <span className="absolute top-1 right-1 w-14 h-14 rounded-full bg-lime flex items-center justify-center text-ink text-2xl"><i className="fas fa-quote-right"></i></span>
           </div>
-          <span className="inline-flex gap-1 mt-6 px-5 py-2 rounded-full border border-black/10 text-[#ffc737]">{[...Array(5)].map((_, k) => <i key={k} className="fas fa-star text-sm"></i>)}</span>
+          <span className="inline-block mt-6 px-5 py-2 rounded-full border border-black/10 font-display font-semibold text-sm text-forest">Highlights</span>
         </div>
         <div>
           <AnimatePresence mode="wait">
@@ -894,11 +896,11 @@ function Awards() {
 
 // ============ BLOG → BEYOND WORK ============
 const BEYOND = [
-  { tag: 'Leadership', t: 'Reviving the ISHRAE student chapter', d: 'Led the 2022–23 revival of the ISHRAE chapter at IIEST, raising member participation by 30%.', ic: 'fa-people-group' },
-  { tag: 'Leadership', t: 'ASME Co-Secretary, 2020–23', d: 'Ran the weekly newsletter, organised events and coordinated 35+ members across activities.', ic: 'fa-newspaper' },
-  { tag: 'Campus', t: 'Newsletter & tech fests at IIEST', d: 'Managed, proofread and wrote newsletter articles, and brought brand partners to the tech fests.', ic: 'fa-handshake-angle' },
-  { tag: 'Interests', t: 'Cooking, badminton & running', d: 'Recreating restaurant-style dishes at home, competitive badminton and recreational running.', ic: 'fa-utensils' },
-  { tag: 'Interests', t: 'Design & photography', d: 'Validating product concepts for fun and photographing landscapes and architecture.', ic: 'fa-camera' },
+  { tag: 'Leadership', t: 'Reviving the ISHRAE student chapter', d: 'Led the 2022–23 revival of the ISHRAE chapter at IIEST and lifted member participation by 30%.', ic: 'fa-people-group' },
+  { tag: 'Leadership', t: 'ASME Co-Secretary, 2020–23', d: 'Ran the weekly newsletter, organised events and coordinated 35+ members.', ic: 'fa-newspaper' },
+  { tag: 'Campus', t: 'Newsletter & tech fests at IIEST', d: 'I managed, proofread and wrote newsletter articles, and brought brand partners to the tech fests.', ic: 'fa-handshake-angle' },
+  { tag: 'Interests', t: 'Cooking, badminton & running', d: 'I recreate restaurant dishes at home, play competitive badminton and go for runs.', ic: 'fa-utensils' },
+  { tag: 'Interests', t: 'Design & photography', d: 'I test product ideas for fun and photograph landscapes and architecture.', ic: 'fa-camera' },
 ];
 
 function Beyond() {
@@ -909,7 +911,7 @@ function Beyond() {
     <section className="pb-24 lg:pb-32 px-6 lg:px-16 bg-paper">
       <div className="max-w-[1344px] mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div><Eyebrow>Beyond Work</Eyebrow><RevealHeading text="Leadership & Life Outside The Office" className="mt-5" /></div>
+          <div><Eyebrow>Beyond Work</Eyebrow><RevealHeading text="Outside The Office" className="mt-5" /></div>
           <button onClick={() => setS((s + 1) % pages)} className="rounded-full self-start md:self-auto px-7 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">More Stories <i className="fas fa-arrow-right ml-2"></i></button>
         </div>
         <div className="overflow-hidden mt-12">
@@ -956,8 +958,8 @@ function Contact() {
       <div className="max-w-[1344px] mx-auto grid lg:grid-cols-2 gap-16">
         <div>
           <Eyebrow>Contact</Eyebrow>
-          <RevealHeading text="Have An Internship In Mind? Let's Talk." className="mt-5" />
-          <p className="mt-6 leading-8">Messages from this form land straight in my inbox. I usually reply within a day.</p>
+          <RevealHeading text="Got An Internship In Mind? Let's Talk." className="mt-5" />
+          <p className="mt-6 leading-8">Send me a message here or email me directly. I usually reply within a day.</p>
           <div className="mt-10 space-y-5">
             {[
               { ic: 'fa-phone', l: 'Call me', v: `🇫🇷 ${PHONE}`, h: `tel:${PHONE.replace(/\s/g, '')}` },
@@ -1022,7 +1024,7 @@ function Footer() {
           </div>
           <div>
             <h5 className="font-display font-bold" style={{ color: '#fff' }}>Get My CV</h5>
-            <p className="text-white/60 text-sm mt-4 mb-5 leading-6">Ten versions, each tailored to a role family.</p>
+            <p className="text-white/60 text-sm mt-4 mb-5 leading-6">Ten versions, one for each kind of role.</p>
             <CVDropdown variant="lime" label="Choose CV" up />
           </div>
         </div>
