@@ -124,7 +124,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 }
 
 // ============ CV DROPDOWN ============
-function CVDropdown({ label = 'Download CV', variant = 'lime', align = 'left' }: { label?: string; variant?: 'lime' | 'dark' | 'outline'; align?: 'left' | 'right' }) {
+function CVDropdown({ label = 'Download CV', variant = 'lime', align = 'left', up = false }: { label?: string; variant?: 'lime' | 'dark' | 'outline'; align?: 'left' | 'right'; up?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -147,8 +147,8 @@ function CVDropdown({ label = 'Download CV', variant = 'lime', align = 'left' }:
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-2 w-72 bg-white rounded-xl shadow-2xl overflow-hidden z-50 border border-black/5`}
+            initial={{ opacity: 0, y: up ? 8 : -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: up ? 8 : -8 }}
+            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} ${up ? 'bottom-full mb-2' : 'top-full mt-2'} w-72 bg-white rounded-xl shadow-2xl overflow-hidden z-50 border border-black/5`}
           >
             <div className="px-4 py-3 bg-forest text-white text-xs font-bold uppercase tracking-wider font-display">Pick the CV for the role</div>
             {CVS.map((cv) => (
@@ -280,7 +280,7 @@ function Hero() {
               <span className="block font-bold">{s.l3}</span>
             </h1>
             <div className="flex flex-wrap gap-4 mt-10">
-              <CVDropdown variant="lime" />
+              <CVDropdown variant="lime" up />
               <button onClick={() => scrollTo('experience')} className="px-7 py-4 border border-white/40 text-white font-display font-semibold text-sm hover:bg-white hover:text-ink transition-colors">View Experience</button>
             </div>
           </motion.div>
@@ -483,7 +483,7 @@ function MissionVision() {
           <div className="absolute left-0 bottom-10 bg-lime p-7 w-[60%] min-w-[240px] shadow-2xl">
             {[{ v: 89, label: 'B.Tech CGPA', show: <Counter to={8.93} decimals={2} /> }, { v: 88, label: 'Months in industry', show: <Counter to={35} /> }].map((s, k) => (
               <div key={k} className={`flex items-center gap-5 ${k ? 'pt-5 mt-5 border-t border-ink/15' : ''}`}>
-                <Ring pct={s.v} size={64} stroke={5} track="rgba(16,41,48,0.15)" color="#102930"><i className="fas fa-arrow-up-right text-ink text-sm"></i></Ring>
+                <Ring pct={s.v} size={64} stroke={5} track="rgba(16,41,48,0.15)" color="#102930"><i className="fas fa-arrow-trend-up text-ink text-sm"></i></Ring>
                 <div><p className="font-display font-bold text-3xl text-ink">{s.show}</p><p className="font-display font-semibold text-ink text-sm">{s.label}</p></div>
               </div>
             ))}
@@ -946,7 +946,7 @@ function Footer() {
           <div>
             <h5 className="font-display font-bold" style={{ color: '#fff' }}>Get My CV</h5>
             <p className="text-white/60 text-sm mt-4 mb-5 leading-6">Ten versions, each tailored to a role family.</p>
-            <CVDropdown variant="lime" label="Choose CV" />
+            <CVDropdown variant="lime" label="Choose CV" up />
           </div>
         </div>
         <p className="text-white/40 text-sm mt-12">© 2026 Aritra Sreemany. MiM, emlyon business school · PGDM-IB, MDI Gurgaon.</p>

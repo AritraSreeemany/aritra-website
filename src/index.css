@@ -84,3 +84,5 @@ body {
   transform-origin: left;
   width: 100%;
 }
+
+section[id] { scroll-margin-top: 78px; }
