@@ -10,8 +10,8 @@
   --color-mute: #595b62;
   --color-mint: #f0f7f3;
   --color-paper: #f8f5f2;
-  --font-display: "DM Sans", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-body: "Manrope", sans-serif;
 }
 
 html {
@@ -24,18 +24,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #ffffff;
   color: #595b62;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 }
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    font-family: "DM Sans", sans-serif;
+    font-family: "Bricolage Grotesque", sans-serif;
     color: #051b05;
   }
 }
 .font-display {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Bricolage Grotesque", sans-serif;
 }
 
 /* faint square grid used on dark panels, like the template */

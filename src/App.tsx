@@ -139,7 +139,7 @@ function CVDropdown({ label = 'Download CV', variant = 'lime', align = 'left', u
   }[variant];
   return (
     <div ref={ref} className="relative inline-block">
-      <button onClick={() => setOpen((o) => !o)} className={`flex items-center gap-3 px-7 py-4 font-display font-semibold text-sm transition-colors ${styles}`}>
+      <button onClick={() => setOpen((o) => !o)} className={`flex items-center gap-3 px-7 py-4 rounded-full font-display font-semibold text-sm transition-colors ${styles}`}>
         <i className="fas fa-download"></i>
         {label}
         <i className={`fas fa-chevron-down text-xs transition-transform ${open ? 'rotate-180' : ''}`}></i>
@@ -223,7 +223,7 @@ function Navbar() {
             <span className="w-11 h-11 rounded-full bg-lime flex items-center justify-center text-ink group-hover:bg-forest group-hover:text-lime transition-colors"><i className="fas fa-phone"></i></span>
             <span className="text-xs leading-tight"><span className="block text-forest font-semibold">PHONE:</span><span className="text-ink text-sm">🇮🇳 {PHONE}</span></span>
           </a>
-          <button onClick={() => scrollTo('contact')} className="px-7 py-3.5 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">Contact Now</button>
+          <button onClick={() => scrollTo('contact')} className="rounded-full px-7 py-3.5 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">Contact Now</button>
         </div>
         <button onClick={() => setMenu(!menu)} className="lg:hidden w-11 h-11 flex items-center justify-center bg-forest text-white" aria-label="Menu">
           <i className={`fas ${menu ? 'fa-xmark' : 'fa-bars'}`}></i>
@@ -233,7 +233,7 @@ function Navbar() {
         {menu && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="lg:hidden overflow-hidden bg-forest">
             {NAV.map((n) => (
-              <button key={n.id} onClick={() => { scrollTo(n.id); setMenu(false); }} className="block w-full text-left px-6 py-3.5 text-white border-b border-white/10 font-display">{n.label}</button>
+              <button key={n.id} onClick={() => { scrollTo(n.id); setMenu(false); }} className="rounded-full block w-full text-left px-6 py-3.5 text-white border-b border-white/10 font-display">{n.label}</button>
             ))}
           </motion.div>
         )}
@@ -251,25 +251,41 @@ const SLIDES = [
 
 function Hero() {
   const [i, setI] = useState(0);
+  const [m, setM] = useState({ x: 50, y: 50 });
   useEffect(() => {
     const t = setInterval(() => setI((x) => (x + 1) % SLIDES.length), 6500);
     return () => clearInterval(t);
   }, []);
   const s = SLIDES[i];
   return (
-    <section id="home" className="relative bg-ink overflow-hidden min-h-[640px] lg:min-h-[760px] flex items-center">
+    <section id="home" onMouseMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); setM({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 }); }}
+      className="relative bg-ink overflow-hidden min-h-[640px] lg:min-h-[760px] flex items-center">
       <div className="absolute inset-0 grid-pattern opacity-70"></div>
+      <div className="absolute inset-0 z-[1] pointer-events-none transition-[background] duration-300" style={{ background: `radial-gradient(420px circle at ${m.x}% ${m.y}%, rgba(198,217,54,0.14), transparent 70%)` }}></div>
       <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/95 to-forest/70"></div>
-      {/* portrait block, right side */}
-      <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[48%] hidden md:block">
-        <img src="/aritra-photo.jpg" alt="Aritra Sreemany" className="absolute inset-0 w-full h-full object-cover object-top opacity-40 grayscale mix-blend-luminosity" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/60 to-transparent"></div>
-        {/* floating squares like the template */}
-        {[[12, 18], [26, 30], [60, 14], [74, 46], [40, 62], [82, 70]].map(([x, y], k) => (
-          <motion.span key={k} className="absolute w-14 h-14 bg-white/[0.06] border border-white/10" style={{ left: `${x}%`, top: `${y}%` }}
-            animate={{ opacity: [0.3, 0.9, 0.3] }} transition={{ duration: 4, delay: k * 0.6, repeat: Infinity }} />
+      {/* orbit visual, right side (replaces the template's photo backdrop) */}
+      <div className="absolute right-[-6%] top-1/2 -translate-y-1/2 w-[620px] h-[620px] hidden md:block pointer-events-none">
+        {[1, 0.74, 0.48].map((sc, k) => (
+          <motion.div key={k} className="absolute inset-0 m-auto rounded-full border border-lime/25" style={{ width: `${sc * 100}%`, height: `${sc * 100}%` }}
+            animate={{ rotate: k % 2 ? -360 : 360 }} transition={{ duration: 40 + k * 15, repeat: Infinity, ease: 'linear' }}>
+            <span className="absolute -top-2 left-1/2 w-4 h-4 rounded-full bg-lime shadow-[0_0_24px_#c6d936]"></span>
+          </motion.div>
         ))}
+        <div className="absolute inset-0 m-auto w-40 h-40 rounded-full bg-lime/10 backdrop-blur flex items-center justify-center">
+          <span className="font-display font-extrabold text-5xl text-lime">AS</span>
+        </div>
       </div>
+      {[
+        { t: '€125M', s: 'capex package', x: '62%', y: '18%' },
+        { t: '13+', s: 'vendors managed', x: '82%', y: '40%' },
+        { t: 'B1', s: 'French · C2 English', x: '66%', y: '70%' },
+      ].map((c, k) => (
+        <motion.div key={k} className="absolute hidden lg:block bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-5 py-3 z-[5]" style={{ left: c.x, top: c.y }}
+          animate={{ y: [0, -12, 0] }} transition={{ duration: 5, delay: k * 1.2, repeat: Infinity }}>
+          <p className="font-display font-extrabold text-2xl text-lime leading-none">{c.t}</p>
+          <p className="text-white/70 text-xs mt-1">{c.s}</p>
+        </motion.div>
+      ))}
       <div className="relative z-10 w-full px-6 lg:px-16 py-20 grid lg:grid-cols-[1.3fr_1fr] gap-10 items-end">
         <AnimatePresence mode="wait">
           <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.6 }}>
@@ -281,7 +297,7 @@ function Hero() {
             </h1>
             <div className="flex flex-wrap gap-4 mt-10">
               <CVDropdown variant="lime" up />
-              <button onClick={() => scrollTo('experience')} className="px-7 py-4 border border-white/40 text-white font-display font-semibold text-sm hover:bg-white hover:text-ink transition-colors">View Experience</button>
+              <button onClick={() => scrollTo('experience')} className="rounded-full px-7 py-4 border border-white/40 text-white font-display font-semibold text-sm hover:bg-white hover:text-ink transition-colors">View Experience</button>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -300,6 +316,22 @@ function Hero() {
       <button onClick={() => setI((i - 1 + SLIDES.length) % SLIDES.length)} aria-label="Previous slide" className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/20 text-white items-center justify-center hover:bg-lime hover:text-ink hover:border-lime transition-colors z-10"><i className="fas fa-arrow-left text-sm"></i></button>
       <button onClick={() => setI((i + 1) % SLIDES.length)} aria-label="Next slide" className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-white/20 text-white items-center justify-center hover:bg-lime hover:text-ink hover:border-lime transition-colors z-10"><i className="fas fa-arrow-right text-sm"></i></button>
     </section>
+  );
+}
+
+// ============ MARQUEE (own addition) ============
+function Marquee({ items, dark = false }: { items: string[]; dark?: boolean }) {
+  const row = [...items, ...items];
+  return (
+    <div className={`overflow-hidden py-5 ${dark ? 'bg-forest' : 'bg-lime'} -rotate-1 scale-[1.02]`}>
+      <motion.div className="flex gap-10 whitespace-nowrap w-max" animate={{ x: ['0%', '-50%'] }} transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}>
+        {row.map((t, k) => (
+          <span key={k} className={`font-display font-bold text-2xl md:text-3xl flex items-center gap-10 ${dark ? 'text-white' : 'text-ink'}`}>
+            {t}<i className={`fas fa-asterisk text-lg ${dark ? 'text-lime' : 'text-forest'}`}></i>
+          </span>
+        ))}
+      </motion.div>
+    </div>
   );
 }
 
@@ -356,7 +388,7 @@ function About() {
             </div>
           </div>
           <div className="mt-10 flex flex-wrap items-center gap-8">
-            <button onClick={() => scrollTo('services')} className="px-8 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">What I Do</button>
+            <button onClick={() => scrollTo('services')} className="rounded-full px-8 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">What I Do</button>
             <div className="flex items-center gap-3">
               <img src="/aritra-photo.jpg" alt="" className="w-12 h-12 rounded-full object-cover border-2 border-lime" />
               <div><p className="text-2xl text-head" style={{ fontFamily: 'Caveat, cursive' }}>Aritra Sreemany</p><p className="text-xs text-forest font-semibold">MiM, emlyon '28</p></div>
@@ -430,7 +462,7 @@ function Services() {
             <div className="p-8">
               <p className="leading-7">{sel.d}</p>
               <ul className="mt-5 space-y-3">{sel.pts.map((p) => <li key={p} className="flex gap-3 text-ink"><i className="fas fa-check text-forest mt-1.5"></i>{p}</li>)}</ul>
-              <a href={`/${sel.cv}`} download className="inline-flex items-center gap-2 mt-8 px-6 py-3.5 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors"><i className="fas fa-download"></i>Download the matching CV</a>
+              <a href={`/${sel.cv}`} download className="rounded-full inline-flex items-center gap-2 mt-8 px-6 py-3.5 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors"><i className="fas fa-download"></i>Download the matching CV</a>
             </div>
           </div>
         )}
@@ -470,11 +502,16 @@ function MissionVision() {
               </div>
             </motion.div>
           </AnimatePresence>
-          <button onClick={() => scrollTo('contact')} className="mt-10 px-8 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">Let's Talk</button>
+          <button onClick={() => scrollTo('contact')} className="rounded-full mt-10 px-8 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">Let's Talk</button>
         </div>
         <div className="relative">
           <div className="ml-auto w-[80%] aspect-[4/5] bg-forest grid-pattern relative overflow-hidden">
-            <img src="/aritra-photo.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale" />
+            <div className="absolute top-8 left-8 right-8 grid grid-cols-4 gap-2">
+              {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((mo, k) => (
+                <motion.span key={mo} initial={{ opacity: 0, scale: 0.6 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: k * 0.05 }}
+                  className="rounded-lg bg-lime/15 border border-lime/30 text-lime text-xs font-bold py-3 text-center hover:bg-lime hover:text-ink transition-colors cursor-default">{mo}</motion.span>
+              ))}
+            </div>
             <div className="absolute bottom-8 right-8 text-right">
               <p className="text-lime font-display font-bold text-sm tracking-widest">AVAILABLE</p>
               <p className="font-display font-bold text-4xl" style={{ color: '#fff' }}>Jan – Dec<br />2027</p>
@@ -505,11 +542,10 @@ function Growth() {
   return (
     <section className="relative bg-ink overflow-hidden">
       <div className="absolute inset-0 grid-pattern"></div>
-      <img src="/aritra-photo.jpg" alt="" className="absolute right-0 top-0 h-full w-1/3 object-cover opacity-10 grayscale hidden lg:block" />
       <div className="relative max-w-[1344px] mx-auto px-6 lg:px-16 py-24">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div><Eyebrow>Impact In Numbers</Eyebrow><RevealHeading text="Building Results On The Shop Floor" light className="mt-5" /></div>
-          <button onClick={() => scrollTo('experience')} className="self-start lg:self-auto px-8 py-4 bg-lime text-ink font-display font-semibold text-sm hover:bg-white transition-colors">See The Work</button>
+          <button onClick={() => scrollTo('experience')} className="rounded-full self-start lg:self-auto px-8 py-4 bg-lime text-ink font-display font-semibold text-sm hover:bg-white transition-colors">See The Work</button>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mt-16">
           {stats.map((s) => (
@@ -571,7 +607,13 @@ function Experience() {
     <section id="experience" className="bg-mint">
       <div className="grid lg:grid-cols-2">
         <div className="relative bg-forest min-h-[420px] grid-pattern overflow-hidden">
-          <img src="/aritra-photo.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 grayscale" />
+          <svg className="absolute inset-x-0 bottom-0 w-full h-[70%] opacity-40" viewBox="0 0 600 300" preserveAspectRatio="none">
+            <motion.path d="M0 260 L60 260 L60 180 L110 180 L110 120 L150 120 L150 200 L210 200 L210 90 L240 90 L240 60 L270 60 L270 200 L330 200 L330 150 L400 150 L400 230 L460 230 L460 110 L500 110 L500 230 L600 230"
+              fill="none" stroke="#c6d936" strokeWidth="2" initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 2.5 }} />
+            {[[255, 40], [225, 70], [485, 90]].map(([x, y], k) => (
+              <motion.circle key={k} cx={x} cy={y} r="6" fill="#c6d936" animate={{ cy: [y, y - 30], opacity: [0.8, 0] }} transition={{ duration: 2.4, delay: k * 0.7, repeat: Infinity }} />
+            ))}
+          </svg>
           <div className="absolute top-10 left-8 lg:left-16 right-8">
             <p className="text-lime font-display font-bold text-sm tracking-widest">JINDAL STAINLESS LIMITED</p>
             <p className="font-display font-bold text-3xl lg:text-4xl mt-2" style={{ color: '#fff' }}>India's largest stainless steel manufacturer</p>
@@ -749,15 +791,16 @@ function FAQ() {
   return (
     <section id="faq" className="grid lg:grid-cols-[0.8fr_1.2fr] bg-deep">
       <div className="relative min-h-[320px] bg-forest overflow-hidden">
-        <img src="/aritra-photo.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-t from-deep to-transparent"></div>
+        <div className="absolute inset-0 grid-pattern"></div>
+        <motion.span className="absolute inset-0 flex items-center justify-center font-display font-extrabold text-[260px] leading-none text-lime/20"
+          animate={{ rotate: [0, 6, -6, 0] }} transition={{ duration: 8, repeat: Infinity }}>?</motion.span>
       </div>
       <div className="relative grid-pattern px-6 lg:px-16 py-20 grid xl:grid-cols-[0.9fr_1.1fr] gap-12">
         <div>
           <Eyebrow>FAQ's</Eyebrow>
           <h2 className="font-display font-bold text-4xl md:text-5xl mt-5 leading-tight" style={{ color: '#fff' }}>Recruiter<br />Questions</h2>
           <p className="text-white/70 mt-5 leading-7">Quick answers to what most recruiters ask first. Anything else, send me a message.</p>
-          <button onClick={() => scrollTo('contact')} className="mt-8 px-7 py-4 bg-white text-ink font-display font-semibold text-sm hover:bg-lime transition-colors">Ask Me Directly</button>
+          <button onClick={() => scrollTo('contact')} className="rounded-full mt-8 px-7 py-4 bg-white text-ink font-display font-semibold text-sm hover:bg-lime transition-colors">Ask Me Directly</button>
         </div>
         <div className="space-y-3">
           {FAQS.map((f, k) => (
@@ -833,7 +876,7 @@ function Beyond() {
       <div className="max-w-[1344px] mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div><Eyebrow>Beyond Work</Eyebrow><RevealHeading text="Leadership & Life Outside The Office" className="mt-5" /></div>
-          <button onClick={() => setS((s + 1) % pages)} className="self-start md:self-auto px-7 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">More Stories <i className="fas fa-arrow-right ml-2"></i></button>
+          <button onClick={() => setS((s + 1) % pages)} className="rounded-full self-start md:self-auto px-7 py-4 bg-forest text-white font-display font-semibold text-sm hover:bg-lime hover:text-ink transition-colors">More Stories <i className="fas fa-arrow-right ml-2"></i></button>
         </div>
         <div className="overflow-hidden mt-12">
           <motion.div className="flex gap-6" animate={{ x: `calc(-${s} * (100% / ${per} + ${24 / per}px))` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }}>
@@ -911,7 +954,7 @@ function Contact() {
           </div>
           <input value={f.company} onChange={(e) => setF({ ...f, company: e.target.value })} placeholder="Company (optional)" className={input} />
           <textarea required rows={6} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} placeholder="What's the role or question?" className={`${input} resize-none`} />
-          <button disabled={status === 'sending'} className="w-full py-4 bg-forest text-white font-display font-semibold hover:bg-lime hover:text-ink transition-colors disabled:opacity-60">{status === 'sending' ? 'Sending…' : 'Send Message'}</button>
+          <button disabled={status === 'sending'} className="w-full py-4 rounded-full bg-forest text-white font-display font-semibold hover:bg-lime hover:text-ink transition-colors disabled:opacity-60">{status === 'sending' ? 'Sending…' : 'Send Message'}</button>
         </form>
       </div>
     </section>
@@ -997,10 +1040,12 @@ export default function App() {
       <TopBar />
       <Navbar />
       <Hero />
+      <Marquee items={['Operations', 'Supply Chain', 'Project Management', 'Strategy', 'Analytics', 'Power BI', 'SAP', 'Vendor Negotiation']} />
       <About />
       <Services />
       <MissionVision />
       <Growth />
+      <Marquee dark items={['Open to internships Jan – Dec 2027', 'Lyon · Paris · Europe', 'Français B1 · English C2', 'MiM emlyon business school']} />
       <Journey />
       <Experience />
       <Projects />
